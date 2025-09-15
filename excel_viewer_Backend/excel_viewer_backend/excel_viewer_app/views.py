@@ -1,25 +1,96 @@
-
 import datetime
 import openpyxl
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.core.files import File
 from rest_framework import status
-from .models import ExcelFile, Sheet, SheetEntry
+from .models import ExcelFile, Sheet, SheetEntry, Image
 from django.shortcuts import get_object_or_404
+from django.core.files.temp import NamedTemporaryFile
 from .utils import parse_sheet_data, filter_mapping_rows_by_claim
+from io import BytesIO
+import base64
+import os
+from django.conf import settings
+import uuid
+from openpyxl.drawing.image import Image as OpenpyxlImage
+from PIL import Image as PILImage
+from django.http import JsonResponse
+# from PIL import Image as PILImage
+# from io import BytesIO
+import os
+import uuid
+from django.core.files import File
+from django.conf import settings
+from openpyxl.drawing.image import Image as OpenpyxlImage
+# Helper function to save image to disk
+from PIL import Image as PILImage
+from io import BytesIO
+import os
+import uuid
+from django.core.files import File
+from django.conf import settings
+
+# Helper function to save image to disk
+def save_image_to_disk(img: OpenpyxlImage):
+    try:
+        # Create a directory for images if it doesn't exist
+        image_dir = os.path.join(settings.MEDIA_ROOT, 'images')
+        os.makedirs(image_dir, exist_ok=True)
+
+        # Generate a unique filename for the image using UUID
+        image_filename = f"{uuid.uuid4()}.png"
+        image_path = os.path.join(image_dir, image_filename)
+
+        # Get image data
+        image_stream = img._data()  # This returns a bytes object
+
+        if not image_stream:
+            print("No image data found.")
+            return None
+
+        # Open the image using PIL
+        pil_image = PILImage.open(BytesIO(image_stream))
+
+        # Save image to disk
+        pil_image.save(image_path, format="PNG")
+
+        # Save to DB
+        image_instance = Image.objects.create(
+            image=File(open(image_path, 'rb'), name=image_filename)
+        )
+
+        return image_instance
+    except Exception as e:
+        print(f"Error saving image: {e}")
+        return None
 
 
-# Helper function to process Excel cell values and formatting
-def safe_cell_value(cell):
+
+
+def safe_cell_value(cell, sheet_name):
     value = cell.value
     if isinstance(value, (datetime.datetime, datetime.date)):
         value = value.strftime('%Y-%m-%d')
+
+    hyperlink = cell.hyperlink.target if cell.hyperlink else None
+    target_sheet = None
+    target_column = None
+
+    # If there's a hyperlink, extract target sheet and column info (assuming format like 'Sheet2!A1')
+    if hyperlink:
+        link_parts = hyperlink.split("!")
+        if len(link_parts) == 2:
+            target_sheet = link_parts[0]
+            target_column = link_parts[1]
 
     return {
         "value": value,
         "font_color": cell.font.color.rgb if cell.font.color and cell.font.color.type == "rgb" else None,
         "fill_color": cell.fill.fgColor.rgb if cell.fill and cell.fill.fgColor.type == "rgb" else None,
-        "hyperlink": cell.hyperlink.target if cell.hyperlink else None,
+        "hyperlink": hyperlink,
+        "target_sheet": target_sheet,
+        "target_column": target_column,
         "bold": cell.font.bold,
         "italic": cell.font.italic,
         "alignment": {
@@ -29,6 +100,7 @@ def safe_cell_value(cell):
         "is_merged": cell.coordinate in cell.parent.merged_cells,
         "checkbox": str(value).strip() in ['✓', '☑']
     }
+
 
 class ExcelUploadView(APIView):
     def post(self, request):
@@ -40,49 +112,70 @@ class ExcelUploadView(APIView):
             wb = openpyxl.load_workbook(file_obj, data_only=False)
         except Exception as e:
             return Response({"error": f"Invalid Excel file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-
+        
         excel_file = ExcelFile.objects.create(file_name=file_obj.name)
         response_data = {"excel_file_id": excel_file.id, "sheets": []}
 
         for sheet_name in wb.sheetnames:
             ws = wb[sheet_name]
-            sheet = Sheet.objects.create(name=sheet_name, excel_file=excel_file)
+            sheet = Sheet.objects.create(
+                name=sheet_name, 
+                excel_file=excel_file,
+                merged_cells=[str(merge) for merge in ws.merged_cells.ranges],
+                column_widths={ 
+                    col_letter: ws.column_dimensions[col_letter].width 
+                    for col_letter in ws.column_dimensions
+                },
+                row_heights={ 
+                    row_num: ws.row_dimensions[row_num].height 
+                    for row_num in ws.row_dimensions
+                },
+            )
 
             rows = []
             for row in ws.iter_rows():
-                row_data = [safe_cell_value(cell) for cell in row]
+                row_data = [safe_cell_value(cell, sheet_name) for cell in row]
                 rows.append(row_data)
 
+            # Creating SheetEntry for storing row data
             SheetEntry.objects.create(sheet=sheet, row_data=rows)
 
-            merged_cells = [str(merge) for merge in ws.merged_cells.ranges]
-            column_widths = {
-                col_letter: ws.column_dimensions[col_letter].width
-                for col_letter in ws.column_dimensions
-            }
-            row_heights = {
-                row_num: ws.row_dimensions[row_num].height
-                for row_num in ws.row_dimensions
-            }
-
-            images = []
+            # Process images from the Excel sheet and save them
+            images = [
+                 {
+        "url": image.image.url,
+        "row": image.row,
+        "column": image.column
+    }
+    for image in sheet.images.all()
+            ]
             for img in ws._images:
-                image_info = {
-                    "type": "image",
-                    "name": getattr(img, "path", "embedded"),
-                    "anchor": str(getattr(img.anchor, "_from", getattr(img.anchor, "cell", "unknown")))
-                }
-                images.append(image_info)
+                image_instance = save_image_to_disk(img)
+                if image_instance:
+        # Extract image anchor (cell location)
+                    anchor = img.anchor._from  # only works for openpyxl images
+                    row = anchor.row  # 0-based index
+                    col = anchor.col  # 0-based index
+
+                    image_instance.row = row
+                    image_instance.column = col
+                    image_instance.save()
+
+                    images.append(image_instance)
+
+            # Now add the image instances to the ManyToManyField
+            sheet.images.set(images)
+            sheet.save()
 
             response_data["sheets"].append({
                 "id": sheet.id,
                 "name": sheet.name,
                 "columns": rows[0] if rows else [],
                 "rows": rows[1:] if rows else [],
-                "merged_cells": merged_cells,
-                "column_widths": column_widths,
-                "row_heights": row_heights,
-                "images": images
+                "merged_cells": sheet.merged_cells,
+                "column_widths": sheet.column_widths,
+                "row_heights": sheet.row_heights,
+                "images": [image.image.url for image in images]  # Return the image URLs
             })
 
         return Response(response_data, status=status.HTTP_200_OK)
@@ -111,7 +204,9 @@ class SheetListView(APIView):
                 "id": sheet_index,
                 "name": sheet.name,
                 "columns": [],
-                "rows": []
+                "rows": [],
+                "images": [image.image.url for image in sheet.images.all()],  # <-- ADD THIS
+
             }
 
             if entries.exists():
@@ -131,6 +226,7 @@ class SheetListView(APIView):
             response_data.append(file_data)
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 # GET single Excel file and its sheets
 class SpecificSheetView(APIView):
@@ -155,7 +251,7 @@ class SpecificSheetView(APIView):
                 "name": sheet.name,
                 "columns": [],
                 "rows": [],
-                "images": [],
+                "images": [image.image.url for image in sheet.images.all()],  # <-- ADD THIS
                 "merged_cells": [],
                 "column_widths": {},
                 "row_heights": {}
@@ -172,6 +268,7 @@ class SpecificSheetView(APIView):
 
         return Response(file_data, status=status.HTTP_200_OK)
 
+
 # DELETE Excel file and all linked sheets/data
 class DeleteExcelFileView(APIView):
     def delete(self, request, file_id):
@@ -182,7 +279,7 @@ class DeleteExcelFileView(APIView):
         except ExcelFile.DoesNotExist:
             return Response({"error": "Excel file not found."}, status=status.HTTP_404_NOT_FOUND)
 
-# Simple sheet name update view (can expand later)
+# Update the sheet (if necessary)
 class UpdateSheetView(APIView):
     def put(self, request, sheet_id):
         try:
@@ -195,11 +292,9 @@ class UpdateSheetView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-from django.http import JsonResponse
-from .utils import parse_sheet_data
 
 def filter_mapping_by_claim(request, file_id, claim_id):
-    # Get the Excel file
+    # Get the Excel file using file_id
     excel_file = get_object_or_404(ExcelFile, id=file_id)
 
     # Find the mapping sheet (assuming name is fixed)
@@ -207,25 +302,25 @@ def filter_mapping_by_claim(request, file_id, claim_id):
     if not mapping_sheet:
         return JsonResponse({'error': 'Mapping sheet not found'}, status=404)
 
-    # Load parsed rows (assuming you store structured JSON in `data`)
-    sheet_data = parse_sheet_data(mapping_sheet)  # You might already have this function
+    # Parse rows from the mapping sheet
+    rows = parse_sheet_data(mapping_sheet)
 
-    # Filter rows where the column with value == claim_id has 'P'
-    filtered_rows = []
-    columns = [col.get('value') for col in sheet_data['columns']]
+    # Filter rows using your custom logic for claim_id
+    filtered_rows = filter_mapping_rows_by_claim(rows, claim_id)
 
-    if claim_id not in columns:
-        return JsonResponse({'error': f'Claim ID "{claim_id}" not found in columns'}, status=404)
+    # Extract image metadata for the filtered mapping sheet rows
+    images = [
+        {
+            "url": image.image.url,
+            "row": image.row,
+            "column": image.column
+        }
+        for image in mapping_sheet.images.all()
+    ]
 
-    col_index = columns.index(claim_id)
-
-    for row in sheet_data['rows']:
-        cell = row[col_index]
-        if cell and str(cell.get('value')).strip().upper() == 'P':
-            filtered_rows.append(row)
-
+    # Return the filtered rows along with the image metadata
     return JsonResponse({
-        'claim_id': claim_id,
-        'columns': sheet_data['columns'],
-        'rows': filtered_rows,
+        "sheet_name": mapping_sheet.name,
+        "rows": filtered_rows,
+        "images": images
     })

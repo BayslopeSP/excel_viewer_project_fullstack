@@ -11,4 +11,5 @@ class SheetEntryAdmin(admin.ModelAdmin):
     list_filter = ('sheet',)
 
     def short_row_data(self, obj):
-        return str(obj.row_data)[:100] + '...'
+        return str(obj.row_data)[:100] + '...'  if obj.row_data else ''
+    short_row_data.short_description = 'Short Row Data'
