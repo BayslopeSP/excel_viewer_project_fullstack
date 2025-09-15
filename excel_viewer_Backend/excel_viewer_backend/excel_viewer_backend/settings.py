@@ -12,6 +12,23 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 import os
+import environ
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+# import environ
+
+# Initialise environment variables
+env = environ.Env()
+# Read the .env file
+environ.Env.read_env()
+
+
+DATABASES = {"default": env.db("DATABASE_URL")}  # Read database URL from .env
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +41,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-l))q&5pe9ee(fl!e+c9r0)i(_awaq#!g_wi)o!u-*ll@ll8v5s'
+# SECRET_KEY = 'django-insecure-l))q&5pe9ee(fl!e+c9r0)i(_awaq#!g_wi)o!u-*ll@ll8v5s'
+
+
+SECRET_KEY = env("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -81,12 +101,27 @@ WSGI_APPLICATION = 'excel_viewer_backend.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+
+import os
+import environ
+
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "excel_viewer_db",  # Database name from the URL
+#         "USER": "excel_viewer_db_user",  # Username from the URL
+#         "PASSWORD": "KMlbJ8MleWspcqsBuX5EBG3tWJp0Rh10",  # Password from the URL
+#         "HOST": "dpg-d344in2li9vc73cpkggg-a",  # Host from the URL
+#         "PORT": "5432",  # Default PostgreSQL port
+#     }
+# }
 
 
 # Password validation
