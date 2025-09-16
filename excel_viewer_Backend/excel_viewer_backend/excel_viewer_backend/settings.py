@@ -49,7 +49,12 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+# ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "excel-viewer-project-fullstack.onrender.com",
+    "localhost",
+    "127.0.0.1",
+]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Application definition
@@ -67,6 +72,7 @@ INSTALLED_APPS = [
 ]
 CORS_ALLOWED_ORIGINS = [
     # "https://excel-viewer-frontend.onrender.com",
+    "https://excel-viewer-frontend.onrender.com"
 ]
 
 
