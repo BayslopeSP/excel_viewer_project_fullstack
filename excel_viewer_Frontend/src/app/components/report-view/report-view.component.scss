@@ -1,0 +1,56 @@
+.cover-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .cover-row {
+    display: flex;
+    gap: 20px;
+    margin: 5px 0;
+    justify-content: center;
+  }
+  
+  .cover-cell {
+    background: #f9f9f9;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+
+
+
+
+
+
+  .cover-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 400px;
+    text-align: center;
+  
+    .title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1rem;
+    }
+  
+    .patent {
+      font-size: 1.8rem;
+      text-decoration: underline;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+  
+    .date {
+      font-size: 1rem;
+      color: gray;
+      margin-bottom: 2rem;
+    }
+  }
+  

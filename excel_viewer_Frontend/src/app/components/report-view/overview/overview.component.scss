@@ -1,0 +1,141 @@
+.overview-wrapper {
+
+
+
+    padding: 1rem;
+    font-family: Arial, sans-serif;
+  
+    .heading {
+      font-size: 1.75rem;
+      font-weight: bold;
+    }
+  
+    .label {
+      display: inline-block;
+      margin: 1rem 0;
+      padding: 0.5rem 1rem;
+      background-color: white;
+      border-radius: 20px;
+      font-weight: 500;
+      border: 1px solid #ccc;
+    }
+  
+    .overview-card {
+      background: #000;
+      color: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+  
+      .row {
+        margin: 0.3rem 0;
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+  
+        span {
+          font-weight: bold;
+          margin-right: 0.5rem;
+        }
+  
+        .right {
+          margin-left: auto;
+          font-weight: bold;
+        }
+      }
+    }
+  
+    .claim-box {
+      background: #fff;
+      padding: 1rem;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+  
+      .claim-title {
+        font-weight: bold;
+        background-color: #eee;
+        padding: 0.5rem;
+        border-radius: 5px;
+      }
+  
+      .claim-body {
+        margin-top: 0.5rem;
+      }
+  
+      ul {
+        margin-top: 0.5rem;
+        padding-left: 1.2rem;
+  
+        li {
+          margin-bottom: 0.3rem;
+        }
+      }
+    }
+  }
+  
+
+
+
+  .claim-box {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-top: 2rem;
+    background-color: #fff;
+  
+    h3 {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+  
+    p {
+      margin-bottom: 1rem;
+      font-size: 1rem;
+    }
+  
+    ul {
+      padding-left: 1.5rem;
+      li {
+        margin-bottom: 0.5rem;
+        list-style-type: disc;
+      }
+    }
+  }
+  
+
+
+  .left-header-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  
+    th, td {
+      padding: 10px 12px;
+      vertical-align: top;
+      border: 1px solid #ddd;
+    }
+  
+    th {
+      background-color: #f5f5f5;
+      font-weight: 600;
+      text-align: left;
+      width: 25%;
+      color: #333;
+    }
+  
+    td {
+      background-color: #fff;
+      color: #333;
+    }
+  
+    tr:nth-child(even) td {
+      background-color: #fafafa;
+    }
+  
+    tr:hover td {
+      background-color: #f0f8ff;
+    }
+  }
+  

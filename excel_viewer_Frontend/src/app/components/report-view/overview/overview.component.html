@@ -1,0 +1,46 @@
+<div *ngIf="sheet" class="overview-wrapper">
+  <h2 class="heading">{{ safeSheet.name }}</h2>
+
+  <h3>{{getCellValueSafe(4,0)}}</h3>
+
+  <table class="left-header-table">
+    <tr>
+      <th>{{getCellValueSafe(5,0)}}</th>
+      <td>{{getCellValueSafe(5,1)}}</td>
+    </tr>
+    <tr>
+      <th>{{getCellValueSafe(6,0)}}</th>
+      <td>{{getCellValueSafe(6,1)}}</td>
+    </tr>
+    <tr>
+      <th>{{getCellValueSafe(7,0)}}</th>
+      <td>{{getCellValueSafe(7,1)}}</td>
+    </tr>
+    <tr>
+      <th>{{getCellValueSafe(8,0)}}</th>
+      <td>{{getCellValueSafe(8,1)}}</td>
+    </tr>
+    <tr>
+      <th>{{getCellValueSafe(9,0)}}</th>
+      <td>{{getCellValueSafe(9,1)}}</td>
+      <th>{{getCellValueSafe(9,2)}}</th>
+
+    </tr>
+
+    <tr>
+      <th>{{getCellValueSafe(10,0)}}</th>
+      <td>{{getCellValueSafe(10,1)}}</td>
+      <th>{{getCellValueSafe(10,2)}}</th>
+
+    </tr>
+  </table>
+  
+  <table class="left-header-table">
+    <tr>
+      <th>{{getCellValueSafe(11,0)}}</th>
+      <td>{{getCellValueSafe(11,1)}}</td>
+    </tr>
+  </table>
+
+
+</div>

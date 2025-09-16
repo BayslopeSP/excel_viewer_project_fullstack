@@ -1,0 +1,23 @@
+<mat-card *ngIf="sheet.rows?.length">
+    <mat-card-content>
+      <table mat-table [dataSource]="sheet.rows" class="mat-elevation-z8">
+  
+        <ng-container *ngFor="let col of sheet.columns; let colIndex = index" [matColumnDef]="'col' + colIndex">
+          <td mat-cell *matCellDef="let row">
+            <ng-container *ngIf="row[colIndex]?.checkbox">
+              <mat-checkbox
+                [checked]="true"
+                (change)="handleCheckboxClick(row[colIndex]?.hyperlink)">
+              </mat-checkbox>
+            </ng-container>
+            <ng-container *ngIf="!row[colIndex]?.checkbox && !row[colIndex]?.hyperlink">
+              {{ row[colIndex]?.value }}
+            </ng-container>
+          </td>
+        </ng-container>
+  
+        <tr mat-row *matRowDef="let row; columns: sheet.columnDefs"></tr>
+      </table>
+    </mat-card-content>
+  </mat-card>
+  

@@ -1,0 +1,26 @@
+.secondary-results-table {
+    overflow-x: auto;
+  
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+  
+      th, td {
+        border: 1px solid #ccc;
+        padding: 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+  
+      th {
+        background-color: #f9f9f9;
+        font-weight: 600;
+      }
+  
+      tr:nth-child(even) {
+        background-color: #fcfcfc;
+      }
+    }
+  }
+  

@@ -1,0 +1,81 @@
+<div class="search-tables">
+    <h2>Search Strings</h2>
+  
+    <!-- Balacera Table -->
+    <div class="table-block" *ngIf="balaceraQueries.length">
+      <h3>Search - Relecura</h3>
+      <table mat-table [dataSource]="balaceraQueries" class="custom-table">
+  
+        <ng-container matColumnDef="srNo">
+          <th mat-header-cell *matHeaderCellDef> Sr. No. </th>
+          <td mat-cell *matCellDef="let _; let i = index"> {{ i + 1 }} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="query">
+          <th mat-header-cell *matHeaderCellDef> Query </th>
+          <td mat-cell *matCellDef="let row"> {{ row }} </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="['srNo', 'query']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['srNo', 'query']"></tr>
+      </table>
+    </div>
+    <!-- Google Patent Table -->
+    <div class="table-block" *ngIf="googleQueries.length">
+      <h3>Search - Google Patent</h3>
+      <table mat-table [dataSource]="googleQueries" class="custom-table">
+  
+        <ng-container matColumnDef="srNo">
+          <th mat-header-cell *matHeaderCellDef> Sr. No. </th>
+          <td mat-cell *matCellDef="let _; let i = index"> {{ i + 1 }} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="query">
+          <th mat-header-cell *matHeaderCellDef> Query </th>
+          <td mat-cell *matCellDef="let row"> {{ row }} </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="['srNo', 'query']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['srNo', 'query']"></tr>
+      </table>
+    </div>
+  
+    <!-- IPC/CPC Table -->
+    <div class="table-block" *ngIf="ipcQueries.length">
+      <h3>Search - IPC / CPC</h3>
+      <table mat-table [dataSource]="ipcQueries" class="custom-table">
+  
+        <ng-container matColumnDef="srNo">
+          <th mat-header-cell *matHeaderCellDef> Sr. No. </th>
+          <td mat-cell *matCellDef="let _; let i = index"> {{ i + 1 }} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="query">
+          <th mat-header-cell *matHeaderCellDef> Query </th>
+          <td mat-cell *matCellDef="let row"> {{ row }} </td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="['srNo', 'query']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['srNo', 'query']"></tr>
+      </table>
+    </div>
+  
+    <div class="table-block" *ngIf="assigneeList.length">
+      <h3>Search - Assignee</h3>
+      <table mat-table [dataSource]="assigneeList" class="custom-table">
+  
+        <ng-container matColumnDef="srNo">
+          <th mat-header-cell *matHeaderCellDef> Sr. No. </th>
+          <td mat-cell *matCellDef="let _; let i = index"> {{ i + 1 }} </td>
+        </ng-container>
+  
+        <ng-container matColumnDef="query">
+          <th mat-header-cell *matHeaderCellDef> Assignee </th>
+          <td mat-cell *matCellDef="let row"> {{ row }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['srNo', 'query']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['srNo', 'query']"></tr>
+      </table>
+    </div>
+  </div>

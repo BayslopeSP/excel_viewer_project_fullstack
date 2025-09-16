@@ -1,0 +1,48 @@
+<div class="table-wrapper" *ngIf="sheet">
+  <h2 class="heading">{{ safeSheet.name }}</h2>
+
+  <div class="table-scroll">
+    <table class="biblio-table">
+      <thead >
+        <tr>
+          <th *ngFor="let list of getHeaders()">
+            {{list}}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of getDataRows()">
+          <td *ngFor="let cell of row">
+            <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
+            <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
+          </td>
+        </tr>
+        
+        <!-- <ng-container *ngFor="let row of tableData">
+          <tr *ngIf="row?.patentNo">
+            <td>{{ row.serial }}</td>
+            <td>
+              <a [href]="row.patentUrl" target="_blank">{{ row.patentNo }}</a>
+            </td>
+            <td>
+              <span>{{ truncate(row.abstract) }}</span>
+              <a *ngIf="row.abstract?.length > 60" (click)="viewMore(row.abstract)" class="view-more">View more...</a>
+            </td>
+            <td>{{ row.filingDate }}</td>
+            <td>{{ row.publishedDate }}</td>
+            <td>{{ row.priorityDate }}</td>
+            <td>{{ row.originalAssignee }}</td>
+            <td>{{ row.currentAssignee }}</td>
+            <td>{{ row.familyId }}</td>
+            <td>
+              <div *ngIf="row.familyMembers?.length; else noFamily">
+                <div *ngFor="let member of row.familyMembers">{{ member }}</div>
+              </div>
+              <ng-template #noFamily><span>[N/A]</span></ng-template>
+            </td>
+          </tr>
+        </ng-container> -->
+      </tbody>
+    </table>
+  </div>
+</div>

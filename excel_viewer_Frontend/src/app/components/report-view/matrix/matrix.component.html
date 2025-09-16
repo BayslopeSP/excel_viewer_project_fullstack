@@ -1,0 +1,53 @@
+<div class="matrix-wrapper" *ngIf="sheet">
+  <h2>PRIMARY REFERENCES - FEATURE MATRIX</h2>
+
+  <div class="legend">
+    <strong>Legend Details:</strong>
+    <ul>
+      <li>✔️ : Indicates complete mapping</li>
+      <li>🔷z : Indicates partial mapping</li>
+      <li>🔍 : Indicates inferential mapping</li>
+    </ul>
+  </div>
+
+  <div class="result-buttons-row">
+    <div class="static-space"></div> 
+    <ng-container *ngFor="let result of resultButtons">
+      <button mat-button class="result-button">{{ result }}</button>
+    </ng-container>
+  </div>
+  
+
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th *ngFor="let head of getHeaders()">
+          {{ head }}
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of getMatrixRows(); let rowIndex = index">
+        <td>{{ row.claimNo }}</td>
+        <td>{{ row.elementNo }}</td>
+        <td>{{ row.claimText }}</td>
+
+        <!-- Dynamic Checkbox Columns -->
+        <td *ngFor="let map of row.mappings; let mapIndex = index">
+          <!-- Render checkbox only if map.display exists -->
+          <span 
+          *ngIf="map.display"
+          (click)="onHeaderCheckboxClick(mapIndex, row.claimNo, row.elementNo)"
+          style="cursor: pointer; transition: transform 0.2s ease;"
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+          >
+          {{ map.display }}
+        </span>
+        
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<router-outlet></router-outlet>

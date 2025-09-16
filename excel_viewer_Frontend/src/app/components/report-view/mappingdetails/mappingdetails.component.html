@@ -1,0 +1,15 @@
+<div *ngIf="rows.length > 0" class="mapping-details">
+    <h3>Mapped Claim Data</h3>
+    <table>
+      <tr *ngFor="let row of rows">
+        <td *ngFor="let cell of row">
+          {{ cell?.value || '' }}
+        </td>
+      </tr>
+    </table>
+  </div>
+  
+  <div *ngIf="rows.length === 0">
+    <p>No mapping data found for this claim.</p>
+  </div>
+  

@@ -1,0 +1,50 @@
+.table-wrapper {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+  }
+  
+  .heading {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+  
+  .table-scroll {
+    overflow-x: auto;
+  }
+  
+  .biblio-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 1000px;
+  }
+  
+  .biblio-table th,
+  .biblio-table td {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  
+  .biblio-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+  }
+  
+  .biblio-table tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+  a {
+    color: #1a0dab;
+    text-decoration: underline;
+  }
+  
+  .view-more {
+    color: #007bff;
+    margin-left: 4px;
+    cursor: pointer;
+}

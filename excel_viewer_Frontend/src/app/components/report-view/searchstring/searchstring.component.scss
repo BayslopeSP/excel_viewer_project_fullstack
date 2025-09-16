@@ -1,0 +1,40 @@
+.search-tables {
+    padding: 1rem;
+  
+    h2 {
+      font-size: 20px;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+  
+    h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+    }
+  
+    .custom-table {
+      width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      background: white;
+  
+      th, td {
+        padding: 8px 12px;
+        font-size: 14px;
+        vertical-align: top;
+      }
+  
+      th {
+        background-color: #000;
+        color: white;
+      }
+  
+      tr:nth-child(even) td {
+        background: #f9f9f9;
+      }
+    }
+  }
+  

@@ -1,0 +1,98 @@
+.matrix-wrapper {
+    padding: 1rem;
+  
+    h2 {
+      margin-bottom: 1rem;
+      font-weight: bold;
+    }
+  
+    .legend {
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      ul {
+        padding-left: 1.2rem;
+        list-style: disc;
+      }
+    }
+  
+    .matrix-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+  
+      th,
+      td {
+        border: 1px solid #ccc;
+        padding: 8px 10px;
+      }
+  
+      th {
+        background-color: #222;
+        color: white;
+      }
+  
+      td {
+        vertical-align: top;
+      }
+    }
+  }
+  .matrix-wrapper {
+    padding: 16px;
+  }
+  
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+  
+    th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+    }
+  
+    .clickable-mapping {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+  
+    .clickable-mapping:hover {
+      background-color: #e0f7fa;
+    }
+  }
+  
+  .legend {
+    margin-bottom: 10px;
+    ul {
+      padding-left: 20px;
+    }
+  }
+  .clickable-mapping {
+    cursor: pointer;
+    color: #3f51b5;
+    font-weight: bold;
+    // text-decoration: underline dotted;
+  }
+  
+
+  .result-buttons-row {
+    display: flex;
+    margin-bottom: 8px;
+    margin-left: 471px;
+  }
+  
+  .static-space {
+    width: 45%; // Rough width to cover Claim No, Element #, Claim Text (adjust as needed)
+  }
+  
+  .result-button {
+    min-width: 115px;
+    text-align: center;
+    margin-right: 10px;
+  }
+  

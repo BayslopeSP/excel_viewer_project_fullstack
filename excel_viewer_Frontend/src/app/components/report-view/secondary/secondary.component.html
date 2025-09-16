@@ -1,0 +1,21 @@
+<div class="secondary-results-table">
+    <table>
+      <thead>
+        <tr>
+          <th *ngFor="let head of getHeaders()">
+            {{head}}
+
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of getDataRows()">
+          <td *ngFor="let cell of row">
+            <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
+            <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  

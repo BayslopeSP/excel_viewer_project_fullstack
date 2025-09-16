@@ -1,0 +1,10 @@
+/* Use this in CSS instead of SCSS syntax */
+:host ::ng-deep mat-card.hover-card {
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  :host ::ng-deep mat-card.hover-card:hover {
+    background-color: #e0e0e0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  
