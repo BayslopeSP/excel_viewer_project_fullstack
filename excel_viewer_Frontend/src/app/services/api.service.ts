@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class ApiService {
   // private baseUrl = 'http://localhost:8000/api';
-  private baseUrl = 'https://excel-viewer-project-fullstack.onrender.com/api';
+  private baseUrl = 'https://excel-viewer-project-fullstack.onrender.com';
 
   constructor(private http: HttpClient) {}
 
