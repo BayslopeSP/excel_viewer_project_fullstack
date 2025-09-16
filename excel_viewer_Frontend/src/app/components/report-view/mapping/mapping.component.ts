@@ -265,7 +265,7 @@ export class MappingComponent implements OnChanges, OnInit {
       : null;
   }
 
-  // Filter out unwanted content rows (if needed)
+  // 
   filterUnwantedRows(): void {
     this.filteredRows = this.rows.filter((row) => {
       const combined = row
