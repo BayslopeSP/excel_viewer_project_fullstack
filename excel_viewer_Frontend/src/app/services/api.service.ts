@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
-
-  private baseUrl = 'http://localhost:8000/api'; 
+  // private baseUrl = 'http://localhost:8000/api';
+  private baseUrl = 'https://excel-viewer-project-fullstack.onrender.com';
 
   constructor(private http: HttpClient) {}
 
@@ -26,11 +26,9 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/sheets/${fileId}/`);
   }
 
-
   deleteSheet(sheetId: number): Observable<any> {
     return this.http.delete(`${this.baseUrl}/excel-files/${sheetId}/delete/`);
   }
-
 
   updateSheet(sheetId: number, file: File): Observable<any> {
     const formData = new FormData();

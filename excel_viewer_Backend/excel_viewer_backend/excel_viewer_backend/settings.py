@@ -65,6 +65,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'excel_viewer_app',
 ]
+CORS_ALLOWED_ORIGINS = [
+    # "https://excel-viewer-frontend.onrender.com",
+]
+
 
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

@@ -259,7 +259,10 @@ export class MappingComponent implements OnChanges, OnInit {
     const img = this.images.find(
       (img) => img.row === rowIndex && img.column === colIndex
     );
-    return img ? `http://localhost:8000${img.image}` : null;
+    // return img ? `http://localhost:8000${img.image}` : null;
+    return img
+      ? `https://excel-viewer-project-fullstack.onrender.com${img.image}`
+      : null;
   }
 
   // Filter out unwanted content rows (if needed)
