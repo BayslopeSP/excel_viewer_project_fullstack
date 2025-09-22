@@ -10,7 +10,7 @@ interface Cell {
   bold?: boolean;
   italic?: boolean;
   fill_color?: string;
-  font_color?: string |null;
+  font_color?: string | null;
 }
 
 @Component({
@@ -18,7 +18,7 @@ interface Cell {
   standalone: true,
   imports: [CommonModule, FormsModule, MatTableModule],
   templateUrl: './biblio.component.html',
-  styleUrl: './biblio.component.scss'
+  styleUrl: './biblio.component.scss',
 })
 export class BiblioComponent {
   @Input() sheet?: Sheet;
@@ -41,7 +41,7 @@ export class BiblioComponent {
    */
   getHeaders(): string[] {
     const headerRow = this.sheet?.rows?.[4] ?? [];
-    return headerRow.map(cell => cell?.value?.toString() ?? '');
+    return headerRow.map((cell) => cell?.value?.toString() ?? '');
   }
 
   /**
@@ -57,5 +57,27 @@ export class BiblioComponent {
   getCellValueSafe(row: number, col: number): string {
     const rowData = this.safeSheet.rows[row];
     return rowData?.[col]?.value ?? '';
+  }
+  getColumnClass(header: string): string {
+    const wideColumns = [
+      'Filing Date',
+      'Published Date',
+      'Priority Date',
+      'Original Assignees',
+      'Normalized Original Assignees',
+      'Current Assignees',
+      'Normalized Current Assignees',
+      'Family ID',
+    ];
+
+    const narrowColumns = ['Family Members', 'Abstract'];
+
+    if (wideColumns.includes(header.trim())) {
+      return 'wide-column';
+    } else if (narrowColumns.includes(header.trim())) {
+      return 'narrow-column';
+    } else {
+      return '';
+    }
   }
 }

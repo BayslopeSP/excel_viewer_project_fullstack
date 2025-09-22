@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { MatTableModule } from '@angular/material/table';
@@ -69,7 +69,12 @@ export class ReportViewComponent implements OnInit {
   selectedResult: string = '';
   selectedPatentColumn: string = '';
   selectedElement: string = '';
-  constructor(private route: ActivatedRoute, private apiService: ApiService) {}
+  selectedPatent: string = '';
+  constructor(
+    private route: ActivatedRoute,
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
@@ -184,21 +189,20 @@ export class ReportViewComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent): void {
     const selectedTabLabel = event.tab.textLabel;
-if (selectedTabLabel.toLowerCase().includes('mapping')) {
-  console.log('📌 Mapping tab opened with:', {
-    patent: this.selectedPatent,
-    result: this.selectedResult,
-    element: this.selectedElement,
-  });
+    if (selectedTabLabel.toLowerCase().includes('mapping')) {
+      console.log('📌 Mapping tab opened with:', {
+        patent: this.selectedPatent,
+        result: this.selectedResult,
+        element: this.selectedElement,
+      });
 
-  // Optional: Only reload Mapping if inputs changed
-  this.showMappingComponent = false;
-  setTimeout(() => (this.showMappingComponent = true), 0);
-}
-
+      // Optional: Only reload Mapping if inputs changed
+      this.showMappingComponent = false;
+      this.cdr.detectChanges();
+      this.showMappingComponent = true;
+      // setTimeout(() => (this.showMappingComponent = true), 0);
+    }
   }
-
-  selectedPatent: string = '';
 
   onSelectionChanged(data: {
     patentNumber: string;
@@ -223,7 +227,7 @@ if (selectedTabLabel.toLowerCase().includes('mapping')) {
       setTimeout(() => {
         this.selectedTabIndex = this.mappingTabIndex;
         console.log('🔀 Switched to Mapping tab:', this.mappingTabIndex);
-      },10);
+      }, 10);
     }
   }
 }

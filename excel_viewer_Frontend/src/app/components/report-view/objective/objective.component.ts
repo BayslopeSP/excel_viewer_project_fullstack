@@ -9,15 +9,42 @@ import { Sheet } from '../../../models/excel-sheet.model';
 @Component({
   selector: 'app-objective',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatCardModule, MatTableModule, MatCheckboxModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatCardModule,
+    MatTableModule,
+    MatCheckboxModule,
+  ],
   templateUrl: './objective.component.html',
-  styleUrl: './objective.component.scss'
+  styleUrl: './objective.component.scss',
 })
 export class ObjectiveComponent {
   @Input() sheet?: Sheet;
 
   getCell(row: number, col: number): string {
     const val = this.sheet?.rows?.[row]?.[col]?.value;
-    return typeof val === 'string' || typeof val === 'number' ? String(val) : '';
+    return typeof val === 'string' || typeof val === 'number'
+      ? String(val)
+      : '';
+  }
+
+  splitLines(text: string): string[] {
+    if (!text) return [];
+    return text
+      .split('. ')
+      .map((line) => line.trim())
+      .filter((line) => line); // splits by ". "
+  }
+
+  getLabel(line: string): string {
+    const parts = line.split('>>');
+    return parts[0]?.trim() || '';
+  }
+
+  getValue(line: string): string {
+    const parts = line.split('>>');
+    return parts[1]?.trim() || '';
   }
 }

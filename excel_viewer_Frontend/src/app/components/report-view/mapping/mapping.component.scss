@@ -1,24 +1,35 @@
 .mapping-container {
   overflow-x: auto;
   padding: 1rem;
+  font-family: 'Arial', sans-serif;
 }
 
 /* Scrollable area for table */
 .table-scroll-container {
-  max-height: 500px; // Set your preferred height
+  max-height: 500px;
   overflow-y: auto;
   overflow-x: auto;
   border: 1px solid #ccc;
 }
 
-/* Table styles */
+/* Table base styles */
 .mapping-table {
   min-width: 1000px;
   width: 100%;
   border-collapse: collapse;
-  font-family: 'Arial', sans-serif;
+  font-size: 14px;
+
+  /* Zebra striping */
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  tr:hover {
+    background-color: #eef6ff;
+  }
 }
 
+/* Header and cell styles */
 .header-cell,
 .data-cell {
   padding: 0.75rem;
@@ -30,18 +41,18 @@
 .header-cell {
   position: sticky;
   top: 0;
+  z-index: 2;
   background-color: #f5f5f5;
-  z-index: 2; // Ensures it stays above table body
-  padding: 0.75rem;
-  border: 1px solid #ddd;
   font-weight: bold;
 }
 
+/* Optional checkbox style */
 .matrix-checkbox {
   margin: 0 auto;
   display: block;
 }
 
+/* Image inside table */
 .matrix-img {
   display: block;
   margin: 0 auto;
@@ -49,47 +60,80 @@
   max-height: 100px;
 }
 
+/* Link style */
 .matrix-link {
   color: #007bff;
   text-decoration: underline;
 }
 
+/* Text style */
 .matrix-text {
   white-space: pre-line;
   display: block;
 }
 
-.highlighted-row {
-  background-color: #000;
-  color: #fff;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
+/* Buttons for filtering results */
 .result-buttons {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 1rem;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 8px;
+  background: #f5f5f5;
+  border-radius: 4px;
 
   button {
     padding: 8px 16px;
-    border: 1px solid #ccc;
-    background-color: #f5f5f5;
-    color: #333;
-    border-radius: 5px;
+    border: none;
+    border-radius: 4px;
     cursor: pointer;
-    transition: background-color 0.2s ease, color 0.2s ease;
-
-    &.selected {
-      background-color: #1976d2;
-      color: white;
-      font-weight: bold;
-      border-color: #1976d2;
-    }
+    background: #fff;
+    transition: all 0.2s;
 
     &:hover {
-      background-color: #d0e2f5;
+      background: #f0f0f0;
+    }
+
+    &.selected {
+      background: #007bff;
+      color: white;
     }
   }
+}
+
+/* Highlight row when it's clicked or filtered */
+.highlighted-row {
+  background-color: #d1eaff !important; /* Distinctive light blue */
+  font-weight: bold;
+}
+
+
+
+
+/* mapping.component.scss */
+
+/* Header Wrapper */
+.header-flex-wrapper {
+  display: flex;
+  justify-content: space-between; /* This spaces out the header text and 'Images' label */
+  align-items: center;
+  width: 100%;
+}
+
+/* Data Cell Wrapper */
+.data-flex-wrapper {
+  display: flex;
+  flex-direction: row; /* Arranges children side-by-side */
+  justify-content: space-between; /* Spreads content to both sides */
+  align-items: flex-start; /* Aligns content to the top */
+  width: 100%;
+}
+
+/* Optional: You can style the individual 'columns' within the wrapper */
+.data-flex-wrapper .matrix-text {
+  flex: 1; /* Allows the text to take up available space */
+  padding-right: 10px; /* Adds some space between text and image */
+}
+
+.data-flex-wrapper .image-column {
+  flex-shrink: 0; /* Prevents the image column from shrinking */
 }

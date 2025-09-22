@@ -1,26 +1,72 @@
 .secondary-results-table {
-    overflow-x: auto;
-  
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-  
-      th, td {
-        border: 1px solid #ccc;
-        padding: 10px;
-        text-align: left;
-        vertical-align: top;
-      }
-  
-      th {
-        background-color: #f9f9f9;
-        font-weight: 600;
-      }
-  
-      tr:nth-child(even) {
-        background-color: #fcfcfc;
-      }
+  overflow-x: auto;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+      white-space: normal;   // ✅ allow wrapping in large text cells
+      word-wrap: break-word; // ✅ handle long words
+    }
+
+    th {
+      background-color: #f9f9f9;
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fcfcfc;
+    }
+
+    /* ✅ Increase width for Abstract column (4th col) */
+    th:nth-child(4),
+    td:nth-child(4) {
+      min-width: 300px;  // Adjust as per need
+      max-width: 400px;
+    }
+
+    /* Example: make Publication Number narrower (2nd col) */
+    th:nth-child(13),
+    td:nth-child(13) {
+      min-width: 50px;
+      max-width: 100px;
+    }
+    th:nth-child(5),
+    td:nth-child(5) {
+      min-width: 80px;
+      max-width: 100px;
+    }
+    th:nth-child(6),
+    td:nth-child(6) {
+      min-width: 80px;
+      max-width: 100px;
+    }
+    th:nth-child(7),
+    td:nth-child(7) {
+      min-width: 80px;
+      max-width: 100px;
+    }
+    th:nth-child(8),
+    td:nth-child(8) {
+      min-width: 80px;
+      max-width: 100px;
     }
   }
-  
+}
+
+.abstract-cell {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;   /* ✅ max 5 lines */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+

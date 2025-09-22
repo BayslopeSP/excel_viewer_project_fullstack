@@ -1,9 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
 import { Sheet } from '../../../models/excel-sheet.model';
-
 
 interface Cell {
   value: string | null;
@@ -11,25 +16,19 @@ interface Cell {
   bold?: boolean;
   italic?: boolean;
   fill_color?: string;
-  font_color?: string |null;
+  font_color?: string | null;
 }
 @Component({
   selector: 'app-secondary',
-  imports: [CommonModule,FormsModule,MatTableModule],
+  imports: [CommonModule, FormsModule, MatTableModule],
   templateUrl: './secondary.component.html',
-  styleUrl: './secondary.component.scss'
+  styleUrl: './secondary.component.scss',
 })
 export class SecondaryComponent implements OnChanges {
   @Input() sheet?: Sheet;
   tableData: any[] = [];
 
-
-  
-
-
-
-
-//  @Input() sheet?: Sheet;
+  //  @Input() sheet?: Sheet;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['sheet'] && this.sheet?.rows) {
@@ -49,7 +48,7 @@ export class SecondaryComponent implements OnChanges {
    */
   getHeaders(): string[] {
     const headerRow = this.sheet?.rows?.[4] ?? [];
-    return headerRow.map(cell => cell?.value?.toString() ?? '');
+    return headerRow.map((cell) => cell?.value?.toString() ?? '');
   }
 
   /**

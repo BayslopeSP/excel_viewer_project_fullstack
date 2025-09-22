@@ -48,3 +48,53 @@
     margin-left: 4px;
     cursor: pointer;
 }
+
+
+
+
+
+/* Specific wide column style */
+.wide-column {
+  min-width: 300px;
+  max-width: 600px;
+  white-space: normal;
+}
+
+
+
+.narrow-column {
+  max-width: 80px;
+  min-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+/* Default column */
+.biblio-table th,
+.biblio-table td {
+  padding: 8px 12px;
+  white-space: nowrap;
+  vertical-align: top;
+  text-align: left;
+}
+
+/* Wider columns */
+.wide-column {
+  min-width: 180px; // you can tweak this as needed
+  max-width: 300px;
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Narrow columns */
+.narrow-column {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+   min-width: 180px;
+  word-wrap: break-word;
+}
+

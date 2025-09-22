@@ -5,14 +5,14 @@
     <table class="biblio-table">
       <thead >
         <tr>
-          <th *ngFor="let list of getHeaders()">
+          <th *ngFor="let list of getHeaders(); let i = index" [ngClass]="getColumnClass(list)">
             {{list}}
           </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let row of getDataRows()">
-          <td *ngFor="let cell of row">
+          <td *ngFor="let cell of row; let i = index" [ngClass]="getColumnClass(getHeaders()[i])" >
             <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
             <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
           </td>

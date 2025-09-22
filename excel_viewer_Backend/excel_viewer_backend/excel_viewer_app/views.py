@@ -1,10 +1,12 @@
 import datetime
 import openpyxl
+import traceback
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.files import File
 from rest_framework import status
 from .models import ExcelFile, Sheet, SheetEntry, Image
+from django.utils import timezone
 from django.shortcuts import get_object_or_404
 from django.core.files.temp import NamedTemporaryFile
 from .utils import parse_sheet_data, filter_mapping_rows_by_claim
@@ -15,21 +17,6 @@ from django.conf import settings
 import uuid
 from openpyxl.drawing.image import Image as OpenpyxlImage
 from PIL import Image as PILImage
-from django.http import JsonResponse
-# from PIL import Image as PILImage
-# from io import BytesIO
-import os
-import uuid
-from django.core.files import File
-from django.conf import settings
-from openpyxl.drawing.image import Image as OpenpyxlImage
-# Helper function to save image to disk
-from PIL import Image as PILImage
-from io import BytesIO
-import os
-import uuid
-from django.core.files import File
-from django.conf import settings
 
 # Helper function to save image to disk
 def save_image_to_disk(img: OpenpyxlImage):
@@ -64,8 +51,6 @@ def save_image_to_disk(img: OpenpyxlImage):
     except Exception as e:
         print(f"Error saving image: {e}")
         return None
-
-
 
 
 def safe_cell_value(cell, sheet_name):
@@ -112,7 +97,7 @@ class ExcelUploadView(APIView):
             wb = openpyxl.load_workbook(file_obj, data_only=False)
         except Exception as e:
             return Response({"error": f"Invalid Excel file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         excel_file = ExcelFile.objects.create(file_name=file_obj.name)
         response_data = {"excel_file_id": excel_file.id, "sheets": []}
 
@@ -141,44 +126,74 @@ class ExcelUploadView(APIView):
             SheetEntry.objects.create(sheet=sheet, row_data=rows)
 
             # Process images from the Excel sheet and save them
-            images = [
-                 {
-        "url": image.image.url,
-        "row": image.row,
-        "column": image.column
-    }
-    for image in sheet.images.all()
-            ]
+            # images = []
+            image_instances = []  # model instances for DB save
+            images_json = []
             for img in ws._images:
                 image_instance = save_image_to_disk(img)
                 if image_instance:
-        # Extract image anchor (cell location)
+                    # Extract image anchor (cell location)
                     anchor = img.anchor._from  # only works for openpyxl images
-                    row = anchor.row  # 0-based index
-                    col = anchor.col  # 0-based index
+                    # row = anchor.row  # 0-based index
+                    # col = anchor.col  # 0-based index
 
+                    # image_instance.row = row
+                    # image_instance.column = col
+                    # image_instance.save()
+
+                    # images.append(image_instance)
+                    row = anchor.row       # 0-based
+                    col = anchor.col       # 0-based
+
+                    # Try reading the actual cell's value at that anchor point
+                    try:
+                        cell = ws.cell(row=row + 1, column=col + 1)  # openpyxl is 1-based
+                        cell_value = str(cell.value).strip() if cell.value else ''
+                    except:
+                        print(
+                            f"⚠️ Failed reading cell value at row={row+1} col={col+1}: {e}"
+                        )
+                        cell_value = ''
+
+                    # Save row/column
                     image_instance.row = row
                     image_instance.column = col
                     image_instance.save()
 
-                    images.append(image_instance)
+                    image_instances.append(image_instance)
+
+                    # Dynamically add image with value
+                    images_json.append(
+                        {
+                            "url": image_instance.image.url,
+                            "row": row + 1,  # 1-based for frontend
+                            "column": col + 1,
+                            "cell_value": cell_value,  # 🧠 key line
+                        }
+                    )
 
             # Now add the image instances to the ManyToManyField
-            sheet.images.set(images)
+            sheet.images.set(image_instances)
             sheet.save()
 
-            response_data["sheets"].append({
-                "id": sheet.id,
-                "name": sheet.name,
-                "columns": rows[0] if rows else [],
-                "rows": rows[1:] if rows else [],
-                "merged_cells": sheet.merged_cells,
-                "column_widths": sheet.column_widths,
-                "row_heights": sheet.row_heights,
-                "images": [image.image.url for image in images]  # Return the image URLs
-            })
+            response_data["sheets"].append(
+                {
+                    "id": sheet.id,
+                    "name": sheet.name,
+                    "columns": rows[0] if rows else [],
+                    "rows": rows[1:] if rows else [],
+                    "merged_cells": sheet.merged_cells,
+                    "column_widths": sheet.column_widths,
+                    "row_heights": sheet.row_heights,
+                    # "images": [image.image.url for image in images]  # Return the image URLs
+                    "images": images_json
+                        # for image in images
+                    ,
+                }
+            )
 
         return Response(response_data, status=status.HTTP_200_OK)
+
 
 # GET all Excel files and their sheets
 class SheetListView(APIView):
@@ -194,38 +209,89 @@ class SheetListView(APIView):
                 excel_file_data[excel_file.id] = {
                     "id": excel_file.id,
                     "file_name": excel_file.file_name,
-                    "sheets": []
+                    "sheets": [],
                 }
 
             sheet_index = len(excel_file_data[excel_file.id]["sheets"]) + 1
-            entries = SheetEntry.objects.filter(sheet=sheet)
+            entries = SheetEntry.objects.filter(sheet=sheet).order_by("-date_mapped")
+
+            # ✅ Extract images with row & column
+            images = sheet.images.all()
+            images_list = [
+                {
+                    "url": image.image.url,
+                    "row": image.row + 1,  # 1-based index for frontend
+                    "column": image.column + 1,
+                }
+                for image in images
+                if image.row is not None and image.column is not None
+            ]
 
             sheet_data = {
                 "id": sheet_index,
                 "name": sheet.name,
                 "columns": [],
                 "rows": [],
-                "images": [image.image.url for image in sheet.images.all()],  # <-- ADD THIS
-
+                "images": images_list,  # ✅ Correct structured images list
             }
 
             if entries.exists():
                 for entry in entries:
                     rows = entry.row_data or []
+
+                    # Add date_mapped to each row for display
+                    for row in rows:
+                        row.append(
+                            {
+                                "value": (
+                                    entry.date_mapped.strftime("%Y-%m-%d %H:%M:%S")
+                                    if entry.date_mapped
+                                    else ""
+                                )
+                            }
+                        )
+
                     sheet_data["columns"] = rows[0] if rows else []
                     sheet_data["rows"] = [
                         [{"value": val} for val in row] for row in rows[1:]
                     ]
 
+            # Add to parent file
             excel_file_data[excel_file.id]["sheets"].append(sheet_data)
 
+        # Final response wrap
         response_data = []
         for file_id, data in excel_file_data.items():
-            file_data = data
-            file_data["sheets"] = sorted(file_data["sheets"], key=lambda x: x["id"])
-            response_data.append(file_data)
+            data["sheets"] = sorted(data["sheets"], key=lambda x: x["id"])
+            response_data.append(data)
 
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(response_data)
+
+
+# Add new view to handle checkbox click
+class UpdateMappingDateView(APIView):
+    def post(self, request):
+        sheet_id = request.data.get('sheet_id')
+        row_index = request.data.get('row_index')
+
+        if not sheet_id or not row_index:
+            return Response({"error": "sheet_id and row_index are required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            sheet = Sheet.objects.get(id=sheet_id)
+            entry = SheetEntry.objects.filter(sheet=sheet).first()
+
+            if entry:
+                # Update the date_mapped field
+                entry.date_mapped = timezone.now()
+                entry.save()
+
+                return Response({"message": "Date updated successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response({"error": "No entry found for this sheet"}, status=status.HTTP_404_NOT_FOUND)
+
+        except Sheet.DoesNotExist:
+            return Response({"error": "Sheet not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 # GET single Excel file and its sheets
@@ -234,27 +300,49 @@ class SpecificSheetView(APIView):
         try:
             excel_file = ExcelFile.objects.get(id=file_id)
         except ExcelFile.DoesNotExist:
-            return Response({"error": "Excel file not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Excel file not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         file_data = {
             "id": excel_file.id,
             "file_name": excel_file.file_name,
-            "sheets": []
+            "sheets": [],
         }
 
         sheets = Sheet.objects.filter(excel_file=excel_file)
 
         for sheet in sheets:
             entries = SheetEntry.objects.filter(sheet=sheet)
+
+            # ✅ Extract images with row and col
+            # images_list = [
+            #     {
+            #         "url": image.image.url,
+            #         "row": image.row + 1,  # 1-based for frontend
+            #         "column": image.column + 1,
+            #     }
+            images_list = []
+
+            for image in sheet.images.all():
+                if image.row is not None and image.column is not None:
+                    print(f"🖼️ Image → row={image.row + 1}, col={image.column + 1}, url={image.image.url}")
+                    images_list.append({
+                        "url": image.image.url,
+                        "row": image.row + 1,
+                        "column": image.column + 1
+                    })
+                        # ]
+
             sheet_data = {
                 "id": sheet.id,
                 "name": sheet.name,
                 "columns": [],
                 "rows": [],
-                "images": [image.image.url for image in sheet.images.all()],  # <-- ADD THIS
+                "images": images_list,  # ✅ Correct format
                 "merged_cells": [],
-                "column_widths": {},
-                "row_heights": {}
+                "column_widths": sheet.column_widths,
+                "row_heights": sheet.row_heights,
             }
 
             if entries.exists():
@@ -292,35 +380,26 @@ class UpdateSheetView(APIView):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-def filter_mapping_by_claim(request, file_id, claim_id):
-    # Get the Excel file using file_id
-    excel_file = get_object_or_404(ExcelFile, id=file_id)
-
-    # Find the mapping sheet (assuming name is fixed)
-    mapping_sheet = excel_file.sheets.filter(name__icontains='mapping').first()
-    if not mapping_sheet:
-        return JsonResponse({'error': 'Mapping sheet not found'}, status=404)
-
-    # Parse rows from the mapping sheet
-    rows = parse_sheet_data(mapping_sheet)
-
-    # Filter rows using your custom logic for claim_id
-    filtered_rows = filter_mapping_rows_by_claim(rows, claim_id)
-
-    # Extract image metadata for the filtered mapping sheet rows
-    images = [
-        {
-            "url": image.image.url,
-            "row": image.row,
-            "column": image.column
-        }
-        for image in mapping_sheet.images.all()
-    ]
-
-    # Return the filtered rows along with the image metadata
-    return JsonResponse({
-        "sheet_name": mapping_sheet.name,
-        "rows": filtered_rows,
-        "images": images
-    })
+# Add new view to filter mapping rows by claim
+class FilterMappingView(APIView):
+    def get(self, request, file_id, claim_id):
+        try:
+            excel_file = ExcelFile.objects.get(id=file_id)
+            sheet = Sheet.objects.filter(excel_file=excel_file, name='Mapping').first()
+            
+            if not sheet:
+                return Response({"error": "Mapping sheet not found"}, status=status.HTTP_404_NOT_FOUND)
+                
+            entries = SheetEntry.objects.filter(sheet=sheet)
+            sheet_data = {
+                "columns": entries.first().row_data[0] if entries.exists() else [],
+                "rows": [row for entry in entries for row in entry.row_data[1:]]
+            }
+            
+            filtered_rows = filter_mapping_rows_by_claim(sheet_data, claim_id)
+            return Response({"rows": filtered_rows})
+            
+        except ExcelFile.DoesNotExist:
+            return Response({"error": "Excel file not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

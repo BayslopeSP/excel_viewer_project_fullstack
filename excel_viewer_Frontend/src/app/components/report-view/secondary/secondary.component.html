@@ -10,7 +10,8 @@
       </thead>
       <tbody>
         <tr *ngFor="let row of getDataRows()">
-          <td *ngFor="let cell of row">
+          <td *ngFor="let cell of row ; let colIndex = index">
+            
             <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
             <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
           </td>

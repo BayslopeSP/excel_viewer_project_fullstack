@@ -1,12 +1,19 @@
 <div class="objective-methodology" *ngIf="sheet">
    
   <p>
-    <strong>{{ getCell(3, 0) }}</strong>
+    <!-- <strong>{{ getCell(3, 0) }}</strong> -->
   </p>
   <h2>{{getCell(4,0)}}</h2>
 
   <div class="methodology-box">
-    <h4>{{ getCell(5, 0) }}</h4>
+    <!-- <h4>{{ getCell(5, 0) }}</h4> -->
+     <div class="project-objective">
+  <div *ngFor="let line of splitLines(getCell(5, 0))">
+    <strong>{{ getLabel(line) }}</strong>: {{ getValue(line) }}
+  </div>
+</div>
+<br>
+<br>
 
     <!-- Step 1 -->
     <div class="step">

@@ -7,7 +7,7 @@ import { MatTableModule } from '@angular/material/table';
   standalone: true,
   imports: [CommonModule, MatTableModule],
   templateUrl: './searchstring.component.html',
-  styleUrls: ['./searchstring.component.scss']
+  styleUrls: ['./searchstring.component.scss'],
 })
 export class SearchstringComponent implements OnInit {
   @Input() sheetData: any;
@@ -24,12 +24,20 @@ export class SearchstringComponent implements OnInit {
 
     const getTextRows = (startText: string, endText?: string): string[] => {
       const start = rows.findIndex((r: any[]) =>
-        r.some(c => typeof c?.value === 'string' && c.value.toLowerCase() === startText.toLowerCase())
+        r.some(
+          (c) =>
+            typeof c?.value === 'string' &&
+            c.value.toLowerCase() === startText.toLowerCase()
+        )
       );
 
       const end = endText
         ? rows.findIndex((r: any[]) =>
-            r.some(c => typeof c?.value === 'string' && c.value.toLowerCase() === endText.toLowerCase())
+            r.some(
+              (c) =>
+                typeof c?.value === 'string' &&
+                c.value.toLowerCase() === endText.toLowerCase()
+            )
           )
         : rows.length;
 
@@ -38,7 +46,7 @@ export class SearchstringComponent implements OnInit {
       return rows
         .slice(start + 2, end === -1 ? rows.length : end)
         .map((r: any[]) =>
-          r.map(c => (typeof c?.value === 'string' ? c.value : '')).join('')
+          r.map((c) => (typeof c?.value === 'string' ? c.value : '')).join('')
         )
         .filter((line: string) => line.trim());
     };

@@ -12,7 +12,7 @@ import { ReportViewComponent } from '../report-view/report-view.component';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink,CommonModule,MatCardModule,MatIconModule,MatButtonModule],
+  imports: [CommonModule,MatCardModule,MatIconModule,MatButtonModule],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

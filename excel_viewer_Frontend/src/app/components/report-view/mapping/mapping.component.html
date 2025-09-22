@@ -1,97 +1,56 @@
+<!-- mapping.component.html -->
 <div class="mapping-container">
-
-  <!-- Result Buttons Row -->
-  <div class="result-buttons" *ngIf="columns.length > 3" style="display: flex; gap: 10px; margin-bottom: 10px;">
+  <!-- Result Buttons -->
+  <div class="result-buttons" *ngIf="columns.length > 3">
     <button
       *ngFor="let col of columns.slice(3); let i = index"
       (click)="onResultClick('Result ' + (i + 1))"
-      style="padding: 5px 10px;"
       [class.selected]="isResultActive('Result ' + (i + 1))">
       Result {{ i + 1 }}
     </button>
-
-    <!-- Result All button -->
     <button
       (click)="onResultAllClick()"
-      style="padding: 5px 10px;"
       [class.selected]="isResultAllActive()">
       Result All
     </button>
-  </div>  
+  </div>
 
+  <!-- Scrollable Table -->
   <div class="table-scroll-container">
-  <!-- Main table displaying filtered rows -->
-  <table mat-table [dataSource]="filteredRows" class="mat-elevation-z2 mapping-table">
+    <table mat-table [dataSource]="filteredRows" class="mat-elevation-z2 mapping-table">
 
-    <!-- Dynamically create only filtered columns -->
-    <ng-container *ngFor="let colIndex of filteredColumnIndices" [matColumnDef]="colIndex.toString()">
-      
-      <!-- Header -->
-      <th mat-header-cell *matHeaderCellDef class="header-cell">
-        <span><strong>{{ columns[colIndex]?.value }}</strong></span>
-      </th>
+      <!-- Normal Columns -->
+      <ng-container *ngFor="let colIndex of filteredColumnIndices" [matColumnDef]="colIndex.toString()">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">
+          {{ columns[colIndex]?.value }}
+        </th>
+        <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell">
+          <div class="data-flex-wrapper">
+            <span class="matrix-text" [innerHTML]="row[colIndex.toString()]?.value || ''"></span>
+          </div>
+        </td>
+      </ng-container>
 
-      <!-- Data Cell -->
-      <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell">
-
-        <ng-container [ngSwitch]="row[colIndex.toString()]?.value">
-
-          <!-- Checkbox -->
-          <mat-checkbox
-            *ngSwitchCase="'P'"
-            color="primary"
-            (change)="onCheckboxClick(row[colIndex.toString()])"
-            class="matrix-checkbox"
-            >
-          </mat-checkbox>
-
-          <!-- Image Rendering -->
-          <!-- <img
-            *ngIf="getImageForCell(rowIndex + 2, colIndex + 1)"
-            [src]="getImageForCell(rowIndex + 2, colIndex + 1)"
-            class="matrix-img"
-            alt="cell image"
-            width="100"
-            height="100"
-          /> -->
-
-          <ng-container *ngIf="getImageForCell(rowIndex + 2, colIndex + 1) as imgUrl">
-            <img
-              *ngIf="imgUrl"
-              [src]="imgUrl"
-              class="matrix-img"
-              alt="cell image"
-              width="100"
-              height="100"
-            />
+      <!-- Image Columns -->
+      <ng-container *ngFor="let colIndex of dynamicColumnIndices; let i = index" [matColumnDef]="'img_' + colIndex">
+        <th mat-header-cell *matHeaderCellDef class="header-cell">🖼️</th>
+        <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell image-cell">
+          <ng-container *ngIf="getImageForExactCol(rowIndex, i) as imgObj">
+            <div class="image-wrapper">
+              <!-- <img [src]="'http://localhost:8000' + imgObj.url" -->
+              <img [src]="'https://excel-viewer-frontend.onrender.com' + imgObj.url"
+                   alt="cell image"
+                   class="matrix-img" />
+              <small>R{{ imgObj.row }} • C{{ imgObj.column }}</small>
+            </div>
           </ng-container>
+        </td>
+      </ng-container>
 
-          <!-- Hyperlink -->
-          <a *ngIf="row[colIndex.toString()]?.hyperlink && row[colIndex.toString()]?.value !== 'P'"
-             [href]="row[colIndex.toString()].hyperlink"
-             target="_blank"
-             class="matrix-link">
-            {{ row[colIndex.toString()]?.value }}
-          </a>
-
-          <!-- Default Text -->
-          <span *ngSwitchDefault class="matrix-text" [innerHTML]="row[colIndex.toString()]?.value || ''"></span>
-
-        </ng-container>
-
-      </td>
-    </ng-container>
-
-    <!-- Header & Row Definitions -->
-    <tr mat-header-row *matHeaderRowDef="filteredColumnKeys"></tr>
-    <tr
-      mat-row
-      *matRowDef="let row; columns: filteredColumnKeys"
-      class="data-row"
-      [ngClass]="{ 'highlighted-row': highlightRow(row) }">
-    </tr>
-
-  </table>
-
-</div>
+      <!-- Rows -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"
+          [ngClass]="{ 'highlighted-row': highlightRow(row) }"></tr>
+    </table>
+  </div>
 </div>
