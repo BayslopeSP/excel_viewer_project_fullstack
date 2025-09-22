@@ -87,6 +87,8 @@ export class ReportViewComponent implements OnInit {
     });
   }
 
+  
+
   loadSheetData(): void {
     this.apiService.getExcelFileById(this.sheetId).subscribe({
       next: (data) => {
@@ -102,6 +104,25 @@ export class ReportViewComponent implements OnInit {
         this.sheetsData = allSheets.filter(
           (sheet: any) => sheet.name.toLowerCase() !== 'table of contents'
         );
+
+        const desiredOrder = [
+          'COVER PAGE',
+          'OBJECTIVE & METHODOLOGY',
+          'OVERVIEW',
+          'PRIMARY RESULTS - MATRIX',
+          'PRIMARY RESULTS - MAPPING',
+          'PRIMARY RESULTS - BIBLIO',
+          'SECONDARY RESULTS',
+          'SEARCH STRINGS',
+          'DISCLAIMER',
+        ];
+
+        this.sheetsData.sort((a, b) => {
+          const idxA = desiredOrder.indexOf(a.name.toUpperCase());
+          const idxB = desiredOrder.indexOf(b.name.toUpperCase());
+          return idxA - idxB;
+        });
+
 
         this.matrixSheet = allSheets.find((s: Sheet) =>
           s.name.toLowerCase().includes('matrix')
