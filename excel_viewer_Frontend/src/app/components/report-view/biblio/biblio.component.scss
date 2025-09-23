@@ -12,6 +12,9 @@
   
   .table-scroll {
     overflow-x: auto;
+    max-height: 600px;
+  border-radius: 8px;
+  background: #fff;
   }
   
   .biblio-table {
@@ -27,6 +30,7 @@
     padding: 8px 12px;
     text-align: left;
     vertical-align: top;
+    white-space: pre-line;
   }
   
   .biblio-table th {
@@ -55,15 +59,16 @@
 
 /* Specific wide column style */
 .wide-column {
-  min-width: 300px;
-  max-width: 600px;
-  white-space: normal;
+  min-width: 220px;
+  max-width: 400px;
+  white-space: pre-line;
+  word-break: break-word;
 }
 
 
 
 .narrow-column {
-  max-width: 80px;
+  max-width: 120px;
   min-width: 80px;
   white-space: nowrap;
   overflow: hidden;
@@ -98,3 +103,18 @@
   word-wrap: break-word;
 }
 
+
+
+
+.matrix-text {
+  white-space: pre-line;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.matrix-link {
+  color: #1976d2;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+  margin-left: 4px;
+}

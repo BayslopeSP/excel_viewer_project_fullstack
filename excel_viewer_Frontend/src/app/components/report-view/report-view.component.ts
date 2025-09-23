@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { ViewChild, ElementRef } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CoverPageComponent } from './cover-page/cover-page.component';
 import { GenericSheetComponent } from './generic-sheet/generic-sheet.component';
@@ -56,6 +57,10 @@ import { MatSidenavModule } from '@angular/material/sidenav';
   styleUrls: ['./report-view.component.scss'],
 })
 export class ReportViewComponent implements OnInit {
+  @ViewChild('matrixTable', { static: false, read: ElementRef })
+  
+  matrixTableRef!: ElementRef;
+
   sheetId!: number;
   sheetsData: Sheet[] = [];
 
@@ -73,7 +78,8 @@ export class ReportViewComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public elementRef: ElementRef
   ) {}
 
   ngOnInit(): void {
@@ -86,8 +92,6 @@ export class ReportViewComponent implements OnInit {
       }
     });
   }
-
-  
 
   loadSheetData(): void {
     this.apiService.getExcelFileById(this.sheetId).subscribe({
@@ -122,7 +126,6 @@ export class ReportViewComponent implements OnInit {
           const idxB = desiredOrder.indexOf(b.name.toUpperCase());
           return idxA - idxB;
         });
-
 
         this.matrixSheet = allSheets.find((s: Sheet) =>
           s.name.toLowerCase().includes('matrix')
@@ -210,7 +213,13 @@ export class ReportViewComponent implements OnInit {
 
   onTabChange(event: MatTabChangeEvent): void {
     const selectedTabLabel = event.tab.textLabel;
-    if (selectedTabLabel.toLowerCase().includes('mapping')) {
+    if (
+      selectedTabLabel.toLowerCase().includes('matrix') ||
+      selectedTabLabel.toLowerCase().includes('mapping')
+    ) {
+      setTimeout(() => {
+        this.scrollToBottom();
+      }, 200);
       console.log('📌 Mapping tab opened with:', {
         patent: this.selectedPatent,
         result: this.selectedResult,
@@ -222,6 +231,14 @@ export class ReportViewComponent implements OnInit {
       this.cdr.detectChanges();
       this.showMappingComponent = true;
       // setTimeout(() => (this.showMappingComponent = true), 0);
+    }
+  }
+  scrollToMatrixTable() {
+    if (this.matrixTableRef && this.matrixTableRef.nativeElement) {
+      this.matrixTableRef.nativeElement.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
     }
   }
 
@@ -250,5 +267,9 @@ export class ReportViewComponent implements OnInit {
         console.log('🔀 Switched to Mapping tab:', this.mappingTabIndex);
       }, 10);
     }
+  }
+
+  scrollToBottom() {
+    // window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }
 }

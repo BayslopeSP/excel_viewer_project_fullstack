@@ -21,6 +21,7 @@ interface Cell {
   styleUrl: './biblio.component.scss',
 })
 export class BiblioComponent {
+  expandedCells: { [key: string]: boolean } = {};
   @Input() sheet?: Sheet;
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -60,17 +61,15 @@ export class BiblioComponent {
   }
   getColumnClass(header: string): string {
     const wideColumns = [
-      'Filing Date',
-      'Published Date',
-      'Priority Date',
+      
       'Original Assignees',
       'Normalized Original Assignees',
-      'Current Assignees',
+      // 'Current Assignees',
       'Normalized Current Assignees',
       'Family ID',
     ];
 
-    const narrowColumns = ['Family Members', 'Abstract'];
+    const narrowColumns = ['Abstract', 'Family Members'];
 
     if (wideColumns.includes(header.trim())) {
       return 'wide-column';
@@ -79,5 +78,45 @@ export class BiblioComponent {
     } else {
       return '';
     }
+  }
+  isCellExpanded(rowIndex: number, colIndex: number): boolean {
+    return !!this.expandedCells[`${rowIndex}_${colIndex}`];
+  }
+
+  expandCell(event: Event, rowIndex: number, colIndex: number) {
+    event.preventDefault();
+    this.expandedCells[`${rowIndex}_${colIndex}`] = true;
+  }
+
+  collapseCell(event: Event, rowIndex: number, colIndex: number) {
+    event.preventDefault();
+    this.expandedCells[`${rowIndex}_${colIndex}`] = false;
+  }
+
+  getShortText(text: string | null): string {
+    if (!text) return '';
+    if (typeof text !== 'string') text = String(text);
+    const lines = text.split(/\s+/);
+    if (lines.length > 50) {
+      // 10 words * 5 lines
+      return this.getWordWrappedText(lines.slice(0, 50).join(' '), 10);
+    }
+    return this.getWordWrappedText(text, 10);
+  }
+
+  isTextLong(text: string | null): boolean {
+    if (!text) return false;
+    if (typeof text !== 'string') text = String(text);
+    return text.split(/\s+/).length > 50;
+  }
+  getWordWrappedText(text: string | null, wordsPerLine: number = 5): string {
+    if (!text) return '';
+    if (typeof text !== 'string') text = String(text);
+    const words = text.split(/\s+/);
+    let lines: string[] = [];
+    for (let i = 0; i < words.length; i += wordsPerLine) {
+      lines.push(words.slice(i, i + wordsPerLine).join(' '));
+    }
+    return lines.join('\n');
   }
 }

@@ -9,9 +9,9 @@
             <app-cover-page *ngSwitchCase="'COVER PAGE'" [sheet]="sheet"></app-cover-page>
             <app-objective *ngSwitchCase="'OBJECTIVE & METHODOLOGY'" [sheet]="sheet"></app-objective>
             <app-overview *ngSwitchCase="'OVERVIEW'" [sheet]="sheet"></app-overview>
-            <app-matrix *ngSwitchCase="'PRIMARY RESULTS - MATRIX'" [sheet]="sheet"
+            <app-matrix *ngSwitchCase="'PRIMARY RESULTS - MATRIX'" #matrixTable [sheet]="sheet"
                 (checkboxClicked)="onSelectionChanged($event)">
-                
+
             </app-matrix>
 
             <!-- <app-mapping *ngSwitchCase="evefvrgvrtvtrwtvvvvv'PRIMARY RESULTS - MAPPING'" 
@@ -23,6 +23,7 @@
 
             <app-mapping
   *ngSwitchCase="'PRIMARY RESULTS - MAPPING'"
+  #mappingTable
   [columns]="mappingSheet?.columns || []"
   [rows]="filteredMappingRows.length > 0 ? filteredMappingRows : (mappingSheet?.rows || [])"
   [images]="mappingSheet?.images || []"

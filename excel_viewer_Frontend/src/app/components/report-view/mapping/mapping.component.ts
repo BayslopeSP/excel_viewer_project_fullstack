@@ -50,6 +50,7 @@ export class MappingComponent implements OnChanges, OnInit {
   filteredColumnIndices: number[] = [];
   filteredColumns: string[] = [];
   resultToPatentMap: { [key: string]: string } = {};
+  expandedCells: { [key: string]: boolean } = {};
 
   readonly UNWANTED_ROW_KEYWORDS = [
     'Back to TOC',
@@ -217,7 +218,7 @@ export class MappingComponent implements OnChanges, OnInit {
       this.displayAllData();
       return;
     }
- const patentNo = this.resultToPatentMap[resultName];
+    const patentNo = this.resultToPatentMap[resultName];
     const elementNo = this.claimWithElement.split('|')[1] || '';
     this.applySelectedFilter(patentNo, resultName, elementNo);
   }
@@ -258,8 +259,10 @@ export class MappingComponent implements OnChanges, OnInit {
     );
   }
   get imageColumnExcelCols(): number[] {
-    
-    return [6, 8, 10]; 
+    // Example: [6, 8, ...]  // as per your backend images
+    // You can also make this dynamic if you know the mapping
+    // For now, let's map: first image column = 6, second = 8, etc.
+    return [6, 8, 10]; // <-- yahan apne backend ke hisaab se col numbers daalo
   }
   get displayedColumns(): string[] {
     const staticCols = this.filteredColumnIndices
@@ -272,5 +275,41 @@ export class MappingComponent implements OnChanges, OnInit {
       pairs.push('img_' + i.toString()); // image
     }
     return [...staticCols, ...pairs];
+  }
+
+  // expandedCells: { [key: string]: boolean } = {};
+
+  isCellExpanded(rowIndex: number, colIndex: number): boolean {
+    return !!this.expandedCells[`${rowIndex}_${colIndex}`];
+  }
+
+  expandCell(event: Event, rowIndex: number, colIndex: number) {
+    event.preventDefault();
+    this.expandedCells[`${rowIndex}_${colIndex}`] = true;
+    this.cdr.detectChanges();
+  }
+
+  collapseCell(event: Event, rowIndex: number, colIndex: number) {
+    event.preventDefault();
+    this.expandedCells[`${rowIndex}_${colIndex}`] = false;
+    this.cdr.detectChanges();
+  }
+
+  getShortText(text: any): string {
+    if (!text) return '';
+    if (typeof text !== 'string') text = String(text);
+    const lines = text.split('\n');
+    if (lines.length > 3) {
+      return lines.slice(0, 3).join('\n');
+    }
+    return text.length > 200 ? text.slice(0, 200) : text;
+  }
+
+  isTextLong(text: string): boolean {
+    // if (!text) return false;
+    // return text.split('\n').length > 5 || text.length > 200;
+    if (!text) return false;
+    if (typeof text !== 'string') text = String(text);
+    return text.split('\n').length > 5 || text.length > 200;
   }
 }

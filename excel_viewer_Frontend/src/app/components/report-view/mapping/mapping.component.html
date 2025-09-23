@@ -24,24 +24,37 @@
         <th mat-header-cell *matHeaderCellDef class="header-cell">
           {{ columns[colIndex]?.value }}
         </th>
-        <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell">
-          <div class="data-flex-wrapper">
-            <span class="matrix-text" [innerHTML]="row[colIndex.toString()]?.value || ''"></span>
-          </div>
-        </td>
+<td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell">
+  <div class="data-flex-wrapper">
+    <ng-container *ngIf="isCellExpanded(rowIndex, colIndex); else shortText">
+      <span class="matrix-text">{{ row[colIndex]?.value }}</span>
+      <a href="#" (click)="collapseCell($event, rowIndex, colIndex)">less</a>
+    </ng-container>
+    <ng-template #shortText>
+      <span class="matrix-text">{{ getShortText(row[colIndex]?.value) }}</span>
+      <ng-container *ngIf="isTextLong(row[colIndex]?.value)">
+        ... <a href="#" (click)="expandCell($event, rowIndex, colIndex)">more</a>
+      </ng-container>
+    </ng-template>
+  </div>
+</td>
       </ng-container>
 
       <!-- Image Columns -->
       <ng-container *ngFor="let colIndex of dynamicColumnIndices; let i = index" [matColumnDef]="'img_' + colIndex">
-        <th mat-header-cell *matHeaderCellDef class="header-cell">🖼️</th>
+        <th mat-header-cell *matHeaderCellDef class="header-cell"></th>
         <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell image-cell">
           <ng-container *ngIf="getImageForExactCol(rowIndex, i) as imgObj">
             <div class="image-wrapper">
               <!-- <img [src]="'http://localhost:8000' + imgObj.url" -->
-              <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url"
+               <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url"
                    alt="cell image"
-                   class="matrix-img" />
-              <small>R{{ imgObj.row }} • C{{ imgObj.column }}</small>
+                   class="matrix-img"
+                   width="600"
+     height="600"
+     style="object-fit: contain; border: 1px solid #ccc;"
+                    />
+              <!-- <small>R{{ imgObj.row }} • C{{ imgObj.column }}</small> -->
             </div>
           </ng-container>
         </td>
@@ -54,3 +67,4 @@
     </table>
   </div>
 </div>
+              <!-- <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url" -->

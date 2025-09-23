@@ -1,12 +1,13 @@
- <div class="cover-page">
-    <h1 style="color: brown;" *ngIf="sheet.rows.length && sheet.rows[0].length">
-        {{ sheet.rows[1][0].value }}</h1>
-        <br>
-        <h1 *ngIf="sheet.rows.length && sheet.rows[0].length">
-        {{ sheet.rows[2][0].value }} </h1>
-        <br>
-        <h1 *ngIf="sheet.rows.length && sheet.rows[0].length">
-        {{ sheet.rows[3][1].value }}
-      </h1>
-  </div> 
-
+<div class="cover-page">
+  <div class="cover-box">
+    <h1 class="main-title" *ngIf="sheet.rows.length && sheet.rows[0].length">
+      {{ sheet.rows[1][0].value }}
+    </h1>
+    <h2 class="sub-title" *ngIf="sheet.rows.length && sheet.rows[0].length">
+      {{ sheet.rows[2][0].value }}
+    </h2>
+    <h3 class="author" *ngIf="sheet.rows.length && sheet.rows[0].length">
+      {{ sheet.rows[3][1].value }}
+    </h3>
+  </div>
+</div>

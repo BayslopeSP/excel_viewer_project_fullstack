@@ -10,6 +10,7 @@ import {
 import { Sheet } from '../../../models/excel-sheet.model';
 import { CommonModule } from '@angular/common';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { trigger, transition, style, animate } from '@angular/animations';
 import {
   Router,
   RouterLink,
@@ -17,6 +18,7 @@ import {
   RouterOutlet,
   Routes,
 } from '@angular/router';
+import { ViewChild, ElementRef } from '@angular/core';
 
 @Component({
   selector: 'app-matrix',
@@ -24,8 +26,24 @@ import {
   imports: [CommonModule, RouterOutlet, MatCheckboxModule, RouterModule],
   templateUrl: './matrix.component.html',
   styleUrls: ['./matrix.component.scss'],
+  animations: [
+    trigger('slideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(30px)' }),
+        animate(
+          '200ms cubic-bezier(.35,0,.25,1)',
+          style({ opacity: 1, transform: 'translateY(0)' })
+        ),
+        // Animation complete pe console log (optional)
+      ]),
+      transition(':leave', [
+        animate('200ms', style({ opacity: 0, transform: 'translateY(30px)' })),
+      ]),
+    ]),
+  ],
 })
 export class MatrixComponent implements OnChanges {
+
   // Inject the Router service for navigation
   constructor(private router: Router) {}
 
@@ -70,7 +88,7 @@ export class MatrixComponent implements OnChanges {
   getMatrixRows(): any[] {
     if (!this.sheet?.rows || this.sheet.rows.length < 8) return [];
 
-    const rows = this.sheet.rows.slice(6); // Skip header and legend rows
+    const rows = this.sheet.rows.slice(6, this.sheet.rows.length - 4); // Skip header and legend rows
     const result = [];
 
     for (const row of rows) {
@@ -96,7 +114,7 @@ export class MatrixComponent implements OnChanges {
           display = '🔷';
         } else if (original === 'Þ' || original === 'þ') {
           // Handle both cases for robustness
-          display = '🔍';
+          display = '⭐';
         }
 
         return { original, display, hyperlink: cell?.hyperlink ?? '' };
@@ -123,7 +141,7 @@ export class MatrixComponent implements OnChanges {
   onMappingCellClick(
     mapIndex: number,
     claimId: string,
-    elementNo: string,
+    elementNo: string
     // patentNumber: string,
     // resultName: string
   ): void {

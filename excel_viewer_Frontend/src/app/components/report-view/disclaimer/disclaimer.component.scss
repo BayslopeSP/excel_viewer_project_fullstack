@@ -1,27 +1,54 @@
 .disclaimer-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   padding: 2rem;
-  background: white;
+  background: linear-gradient(90deg, #f8fafc 0%, #e0e7ef 100%);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(60, 72, 88, 0.10), 0 1.5px 6px rgba(60, 72, 88, 0.08);
+  margin: 2rem auto;
+  max-width: 950px;
+  transition: box-shadow 0.3s;
+}
+
+.disclaimer-container:hover {
+  box-shadow: 0 8px 32px rgba(60, 72, 88, 0.18), 0 3px 12px rgba(60, 72, 88, 0.12);
 }
 
 .disclaimer-text {
-  max-width: 900px;
-  color: #333;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  max-width: 800px;
+  color: #2d3748;
+  font-size: 1.05rem;
+  line-height: 1.7;
   text-align: center;
+  padding: 1.5rem 2rem;
 }
 
 .disclaimer-text h2 {
-  font-weight: bold;
+  font-weight: 700;
   margin-bottom: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+   /* Blue accent */
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 8px rgba(37, 99, 235, 0.08);
 }
 
-.nav-links {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
+.disclaimer-text p {
+  margin: 0;
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 600px) {
+  .disclaimer-container {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+  .disclaimer-text {
+    padding: 1rem;
+    font-size: 0.98rem;
+  }
+  .disclaimer-text h2 {
+    font-size: 1.1rem;
+  }
 }
