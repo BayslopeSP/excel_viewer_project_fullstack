@@ -34,6 +34,19 @@ export class UploadFileComponent {
     const file: File = event.target.files[0];
 
     if (file) {
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'application/pdf', // .pdf
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        this.snackBar.open('❌ Only Excel or PDF files are allowed!', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar'],
+        });
+        return;
+      }
       this.selectedFileName = file.name;
       this.isLoading = true;
 

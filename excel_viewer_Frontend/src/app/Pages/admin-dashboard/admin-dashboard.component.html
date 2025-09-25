@@ -1,0 +1,55 @@
+<div class="admin-container">
+  <mat-card class="admin-card">
+    <mat-card-header>
+      <mat-card-title>Admin Dashboard</mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      <div class="section">
+        <mat-form-field appearance="fill" class="full-width">
+          <mat-label>Select Client</mat-label>
+          <mat-select [(value)]="selectedClient" (selectionChange)="onClientChange()">
+            <mat-option [value]="null">-- Select Client --</mat-option>
+            <mat-option *ngFor="let client of clients" [value]="client">
+              {{ client.username }} ({{ client.email }})
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="selectedClient" class="section">
+        <h3>Upload File for {{ selectedClient.username }}</h3>
+
+        <input type="file" (change)="onFileSelected($event)">
+        <button mat-raised-button color="primary" (click)="uploadFile()" [disabled]="!file">
+          Upload File
+        </button>
+
+        <div class="success-text" *ngIf="message">{{ message }}</div>
+
+        <h3>Files of {{ selectedClient.username }}</h3>
+        <mat-table [dataSource]="files" class="mat-elevation-z8" *ngIf="files.length > 0">
+
+          <!-- File Name Column -->
+          <ng-container matColumnDef="file_name">
+            <mat-header-cell *matHeaderCellDef> File Name </mat-header-cell>
+            <mat-cell *matCellDef="let element"> {{ element.file_name }} </mat-cell>
+          </ng-container>
+
+          <!-- Download Column -->
+          <ng-container matColumnDef="download">
+            <mat-header-cell *matHeaderCellDef> Download </mat-header-cell>
+            <mat-cell *matCellDef="let element">
+              <a mat-button color="accent" [href]="element.file" target="_blank">Download</a>
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['file_name','download']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['file_name','download'];"></mat-row>
+        </mat-table>
+
+        <div *ngIf="files.length === 0">No files uploaded yet.</div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

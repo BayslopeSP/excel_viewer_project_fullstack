@@ -9,6 +9,7 @@ export interface ExcelSheet {
   file_name: string;
   columns: string[];
   rows: ExcelCell[][];
+  sheets: any[]
 }
 
 // Represents a rich cell with formatting and metadata

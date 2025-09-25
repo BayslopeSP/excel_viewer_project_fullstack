@@ -7,8 +7,7 @@
         <ng-container [ngSwitch]="sheet.name">
 
             <app-cover-page *ngSwitchCase="'COVER PAGE'" [sheet]="sheet"></app-cover-page>
-            <app-objective *ngSwitchCase="'OBJECTIVE & METHODOLOGY'" [sheet]="sheet"></app-objective>
-            <app-overview *ngSwitchCase="'OVERVIEW'" [sheet]="sheet"></app-overview>
+            
             <app-matrix *ngSwitchCase="'PRIMARY RESULTS - MATRIX'" #matrixTable [sheet]="sheet"
                 (checkboxClicked)="onSelectionChanged($event)">
 
@@ -37,6 +36,8 @@
             <app-biblio *ngSwitchCase="'PRIMARY RESULTS - BIBLIO'" [sheet]="sheet"></app-biblio>
             <app-secondary *ngSwitchCase="'SECONDARY RESULTS'" [sheet]="sheet"></app-secondary>
             <app-searchstring *ngSwitchCase="'SEARCH STRINGS'" [sheetData]="sheet"></app-searchstring>
+            <app-objective *ngSwitchCase="'OBJECTIVE & METHODOLOGY'" [sheet]="sheet"></app-objective>
+            <app-overview *ngSwitchCase="'OVERVIEW'" [sheet]="sheet"></app-overview>
             <app-disclaimer *ngSwitchCase="'DISCLAIMER'" [sheet]="sheet"></app-disclaimer>
             <app-generic-sheet *ngSwitchDefault [sheet]="sheet"></app-generic-sheet>
 

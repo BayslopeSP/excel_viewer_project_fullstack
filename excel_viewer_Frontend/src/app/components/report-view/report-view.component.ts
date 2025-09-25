@@ -63,7 +63,7 @@ export class ReportViewComponent implements OnInit {
 
   sheetId!: number;
   sheetsData: Sheet[] = [];
-
+  fileId!: number
   matrixSheet: any;
   mappingSheet: any;
   selectedTabIndex: number = 0;
@@ -84,18 +84,19 @@ export class ReportViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
-      this.sheetId = +params['sheetId'];
-      if (this.sheetId) {
+      this.fileId = +params['fileId'];
+      if (this.fileId) {
         this.loadSheetData();
       } else {
-        console.error('sheetId is missing');
+        console.error('fileId  is missing');
       }
     });
   }
 
   loadSheetData(): void {
-    this.apiService.getExcelFileById(this.sheetId).subscribe({
+    this.apiService.getExcelFileById(this.fileId).subscribe({
       next: (data) => {
+        this.sheetsData = data.sheets || [];
         console.log('Response mila:', data);
         const allSheets = data.sheets.map((sheet: any) => {
           sheet = this.cleanSheetData(sheet);
@@ -111,13 +112,14 @@ export class ReportViewComponent implements OnInit {
 
         const desiredOrder = [
           'COVER PAGE',
-          'OBJECTIVE & METHODOLOGY',
-          'OVERVIEW',
+
           'PRIMARY RESULTS - MATRIX',
           'PRIMARY RESULTS - MAPPING',
           'PRIMARY RESULTS - BIBLIO',
           'SECONDARY RESULTS',
           'SEARCH STRINGS',
+          'OBJECTIVE & METHODOLOGY',
+          'OVERVIEW',
           'DISCLAIMER',
         ];
 

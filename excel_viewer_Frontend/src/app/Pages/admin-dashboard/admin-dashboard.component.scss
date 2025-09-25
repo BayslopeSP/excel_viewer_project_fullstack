@@ -1,0 +1,26 @@
+.admin-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.admin-card {
+  width: 800px;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.success-text {
+  color: green;
+  margin-top: 12px;
+}

@@ -9,13 +9,39 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let row of getDataRows()">
-          <td *ngFor="let cell of row ; let colIndex = index">
-            
-            <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
-            <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
-          </td>
-        </tr>
+<tr *ngFor="let row of getDataRows(); let rowIndex = index">
+  <td *ngFor="let cell of row; let colIndex = index">
+    <!-- Family Members column -->
+    <ng-container *ngIf="getHeaders()[colIndex].toLowerCase() === 'family members'; else checkAbstract">
+      <span *ngIf="!expandedFamilyRows.has(rowIndex)">
+        {{ getFamilyPreview(cell.value) }}
+        <a *ngIf="isFamilyLong(cell.value)" (click)="toggleFamily(rowIndex)" style="cursor:pointer; color:#2563eb;">...more</a>
+      </span>
+      <span *ngIf="expandedFamilyRows.has(rowIndex)">
+        {{ cell.value }}
+        <a (click)="toggleFamily(rowIndex)" style="cursor:pointer; color:#2563eb;"> less</a>
+      </span>
+    </ng-container>
+    <!-- Abstract column -->
+    <ng-template #checkAbstract>
+      <ng-container *ngIf="getHeaders()[colIndex].toLowerCase() === 'abstract'; else normalCell">
+        <span *ngIf="!expandedAbstractRows.has(rowIndex)">
+          {{ getAbstractPreview(cell.value) }}
+          <a *ngIf="isAbstractLong(cell.value)" (click)="toggleAbstract(rowIndex)" style="cursor:pointer; color:#2563eb;">...more</a>
+        </span>
+        <span *ngIf="expandedAbstractRows.has(rowIndex)">
+          {{ cell.value }}
+          <a (click)="toggleAbstract(rowIndex)" style="cursor:pointer; color:#2563eb;"> less</a>
+        </span>
+      </ng-container>
+    </ng-template>
+    <!-- Normal cell -->
+    <ng-template #normalCell>
+      <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
+      <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
+    </ng-template>
+  </td>
+</tr>
       </tbody>
     </table>
   </div>

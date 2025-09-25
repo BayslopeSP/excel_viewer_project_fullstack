@@ -1,40 +1,21 @@
-<div style="padding: 10px; padding-left: 0px">
-    <!-- <a routerLink="/" style="cursor: pointer; text-decoration: none">Dashboard</a> -->
+<div style="padding: 10px; padding-left: 0px"></div>
+<div>
+  <br />
+  <div style="display: flex; flex-direction: row-reverse; padding-bottom: 10px">
+    <button mat-raised-button (click)="chooseFile()">Upload Report</button>
   </div>
-  
-  <div>
-    <br />
 
-    <div style="display: flex; flex-direction: row-reverse; padding-bottom: 10px">
-      <button  mat-raised-button (click)="chooseFile()">Upload Report</button>
+<mat-card *ngFor="let file of excelData" class="hover-card" style="margin: 10px;">
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <span style="font-weight: bold;">{{ file.file_name }}</span>
+    <div>
+      <button mat-icon-button color="accent" (click)="viewExcelFile(file)">
+        <mat-icon>visibility</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="deleteSheet(file.id)">
+        <mat-icon>delete</mat-icon>
+      </button>
     </div>
-  
-    <mat-card *ngFor="let sheet of excelData"
-      class="hover-card"
-      style="padding-left: 20px; padding-right: 20px; margin: 5px; display: flex; flex-direction: row; justify-content: space-between"
-    >
-      <div   style="display: flex; flex-direction: row; gap: 20px; align-items: center">
-        <p>{{ sheet.file_name }}</p>
-        <div>
-          <button mat-button>Get shareable link</button>
-        </div>
-      </div>
-      <div>
-        <button mat-icon-button color="accent" (click)="viewExcelFile(sheet.id)">
-          <mat-icon>visibility</mat-icon>
-        </button>
-        
-        <!-- <button mat-icon-button color="accent" (click)="editSheet()">
-          <mat-icon>edit</mat-icon>
-        </button> -->
-        
-        <button mat-icon-button color="warn" (click)="deleteSheet(sheet.id)">
-          <mat-icon>delete</mat-icon>
-        </button>
-        
-      </div>
-    </mat-card>
-  
-    
   </div>
-  
+</mat-card>
+</div>

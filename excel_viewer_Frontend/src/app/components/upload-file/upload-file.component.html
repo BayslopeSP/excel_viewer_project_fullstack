@@ -1,19 +1,19 @@
 <mat-card class="upload-card">
-  <mat-card-title>📂 Upload Excel File</mat-card-title>
+  <mat-card-title>📂 Upload Excel or PDF File</mat-card-title>
 
   <!-- File Input (hidden) -->
   <input
     type="file"
     #fileInput
     (change)="onFileSelected($event)"
-    accept=".xlsx,.xls"
+    accept=".xlsx,.xls,.pdf"
     hidden
   />
 
   <!-- Upload Button -->
   <button mat-raised-button color="primary" (click)="fileInput.click()">
     <mat-icon>upload</mat-icon>
-    Choose File
+    Choose File (Excel/PDF)
   </button>
 
   <!-- Show Selected File -->
