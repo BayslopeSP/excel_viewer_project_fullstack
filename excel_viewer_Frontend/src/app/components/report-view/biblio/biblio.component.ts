@@ -1,16 +1,138 @@
+// import { CommonModule } from '@angular/common';
+// import { Component, Input, SimpleChanges } from '@angular/core';
+// import { FormsModule } from '@angular/forms';
+// import { MatTableModule } from '@angular/material/table';
+
+// interface Cell {
+//   value: string | null;
+//   hyperlink?: string | null;
+// }
+
+// @Component({
+//   selector: 'app-biblio',
+//   standalone: true,
+//   imports: [CommonModule, FormsModule, MatTableModule],
+//   templateUrl: './biblio.component.html',
+//   styleUrls: ['./biblio.component.scss'],
+// })
+// export class BiblioComponent {
+//   expandedAbstractRows: Set<number> = new Set();
+//   expandedFamilyRows: Set<number> = new Set();
+//   @Input() sheet?: any;
+
+//   ngOnChanges(changes: SimpleChanges): void {}
+
+//   get safeSheet(): any {
+//     if (!this.sheet) {
+//       throw new Error('Sheet is undefined but accessed in template');
+//     }
+//     return this.sheet;
+//   }
+
+//   getHeaders(): string[] {
+//     const headerRow = this.sheet?.rows?.[4] ?? [];
+//     return headerRow.map((cell: any) => cell?.value?.toString() ?? '');
+//   }
+
+//   getDataRows(): Cell[][] {
+//     return this.sheet?.rows?.slice(5) ?? [];
+//   }
+
+//   /** ------------ FAMILY -------------- */
+//   getFamilyPreview(value: string | null): string[] {
+//     if (!value) return [];
+//     const members = value
+//       .split('|')
+//       .map((m) => m.trim())
+//       .filter((m) => m);
+//     return members.slice(0, 5);
+//   }
+
+//   getFamilyAll(value: string | null): string[] {
+//     if (!value) return [];
+//     return value
+//       .split('|')
+//       .map((m) => m.trim())
+//       .filter((m) => m);
+//   }
+
+//   isFamilyLong(value: string | null): boolean {
+//     if (!value) return false;
+//     return value.split('|').filter((m) => m.trim()).length > 5;
+//   }
+
+//   toggleFamily(rowIndex: number): void {
+//     if (this.expandedFamilyRows.has(rowIndex)) {
+//       this.expandedFamilyRows.delete(rowIndex);
+//     } else {
+//       this.expandedFamilyRows.add(rowIndex);
+//     }
+//   }
+
+//   /** ------------ ABSTRACT -------------- */
+//   getAbstractPreviewLines(
+//     value: string | null,
+//     wordsPerLine: number = 12
+//   ): string[] {
+//     if (!value) return [];
+//     if (typeof value !== 'string') value = String(value);
+
+//     const words = value.split(/\s+/);
+//     let lines: string[] = [];
+
+//     // Sirf 2 line banani hai
+//     for (
+//       let i = 0;
+//       i < Math.min(words.length, wordsPerLine * 2);
+//       i += wordsPerLine
+//     ) {
+//       lines.push(words.slice(i, i + wordsPerLine).join(' '));
+//     }
+
+//     return lines;
+//   }
+
+//   getAbstractAllLines(
+//     value: string | null,
+//     wordsPerLine: number = 12
+//   ): string[] {
+//     if (!value) return [];
+//     if (typeof value !== 'string') value = String(value);
+
+//     const words = value.split(/\s+/);
+//     let lines: string[] = [];
+
+//     for (let i = 0; i < words.length; i += wordsPerLine) {
+//       lines.push(words.slice(i, i + wordsPerLine).join(' '));
+//     }
+
+//     return lines;
+//   }
+
+//   isAbstractLong(value: string | null, wordsPerLine: number = 12): boolean {
+//     if (!value) return false;
+//     const words = value.split(/\s+/);
+//     return words.length > wordsPerLine * 2;
+//   }
+
+//   toggleAbstract(rowIndex: number): void {
+//     if (this.expandedAbstractRows.has(rowIndex)) {
+//       this.expandedAbstractRows.delete(rowIndex);
+//     } else {
+//       this.expandedAbstractRows.add(rowIndex);
+//     }
+//   }
+// }
+
+
 import { CommonModule } from '@angular/common';
 import { Component, Input, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatTableModule } from '@angular/material/table';
-import { Sheet } from '../../../models/excel-sheet.model';
 
 interface Cell {
   value: string | null;
   hyperlink?: string | null;
-  bold?: boolean;
-  italic?: boolean;
-  fill_color?: string;
-  font_color?: string | null;
 }
 
 @Component({
@@ -18,105 +140,113 @@ interface Cell {
   standalone: true,
   imports: [CommonModule, FormsModule, MatTableModule],
   templateUrl: './biblio.component.html',
-  styleUrl: './biblio.component.scss',
+  styleUrls: ['./biblio.component.scss'],
 })
 export class BiblioComponent {
-  expandedCells: { [key: string]: boolean } = {};
-  @Input() sheet?: Sheet;
+  expandedAbstractRows: Set<number> = new Set();
+  expandedFamilyRows: Set<number> = new Set();
+  @Input() sheet?: any;
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['sheet'] && this.sheet?.rows) {
-      // Optional: You can handle or process incoming sheet data here if needed
-    }
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 
-  get safeSheet(): Sheet {
+  get safeSheet(): any {
     if (!this.sheet) {
       throw new Error('Sheet is undefined but accessed in template');
     }
     return this.sheet;
   }
 
-  /**
-   * Returns headers from row index 4
-   */
   getHeaders(): string[] {
     const headerRow = this.sheet?.rows?.[4] ?? [];
-    return headerRow.map((cell) => cell?.value?.toString() ?? '');
+    return headerRow.map((cell: any) => cell?.value?.toString() ?? '');
   }
 
-  /**
-   * Returns all data rows starting after header (index > 4)
-   */
   getDataRows(): Cell[][] {
     return this.sheet?.rows?.slice(5) ?? [];
   }
 
-  /**
-   * Utility: Get cell value safely (fallback to empty string)
-   */
-  getCellValueSafe(row: number, col: number): string {
-    const rowData = this.safeSheet.rows[row];
-    return rowData?.[col]?.value ?? '';
+  /** ------------ FAMILY -------------- */
+  getFamilyPreview(value: string | null): string[] {
+    if (!value) return [];
+    const members = value
+      .split('|')
+      .map((m) => m.trim())
+      .filter((m) => m);
+    return members.slice(0, 5); // show only 5
   }
-  getColumnClass(header: string): string {
-    const wideColumns = [
-      
-      'Original Assignees',
-      'Normalized Original Assignees',
-      // 'Current Assignees',
-      'Normalized Current Assignees',
-      'Family ID',
-    ];
 
-    const narrowColumns = ['Abstract', 'Family Members'];
+  getFamilyAll(value: string | null): string[] {
+    if (!value) return [];
+    return value
+      .split('|')
+      .map((m) => m.trim())
+      .filter((m) => m);
+  }
 
-    if (wideColumns.includes(header.trim())) {
-      return 'wide-column';
-    } else if (narrowColumns.includes(header.trim())) {
-      return 'narrow-column';
+  isFamilyLong(value: string | null): boolean {
+    if (!value) return false;
+    return value.split('|').filter((m) => m.trim()).length > 5;
+  }
+
+  toggleFamily(rowIndex: number): void {
+    if (this.expandedFamilyRows.has(rowIndex)) {
+      this.expandedFamilyRows.delete(rowIndex);
     } else {
-      return '';
+      this.expandedFamilyRows.add(rowIndex);
     }
   }
-  isCellExpanded(rowIndex: number, colIndex: number): boolean {
-    return !!this.expandedCells[`${rowIndex}_${colIndex}`];
-  }
 
-  expandCell(event: Event, rowIndex: number, colIndex: number) {
-    event.preventDefault();
-    this.expandedCells[`${rowIndex}_${colIndex}`] = true;
-  }
+  /** ------------ ABSTRACT -------------- */
+  getAbstractPreviewLines(
+    value: string | null,
+    wordsPerLine: number = 12
+  ): string[] {
+    if (!value) return [];
+    if (typeof value !== 'string') value = String(value);
 
-  collapseCell(event: Event, rowIndex: number, colIndex: number) {
-    event.preventDefault();
-    this.expandedCells[`${rowIndex}_${colIndex}`] = false;
-  }
-
-  getShortText(text: string | null): string {
-    if (!text) return '';
-    if (typeof text !== 'string') text = String(text);
-    const lines = text.split(/\s+/);
-    if (lines.length > 50) {
-      // 10 words * 5 lines
-      return this.getWordWrappedText(lines.slice(0, 50).join(' '), 10);
-    }
-    return this.getWordWrappedText(text, 10);
-  }
-
-  isTextLong(text: string | null): boolean {
-    if (!text) return false;
-    if (typeof text !== 'string') text = String(text);
-    return text.split(/\s+/).length > 50;
-  }
-  getWordWrappedText(text: string | null, wordsPerLine: number = 5): string {
-    if (!text) return '';
-    if (typeof text !== 'string') text = String(text);
-    const words = text.split(/\s+/);
+    const words = value.split(/\s+/);
     let lines: string[] = [];
+
+    // show only 2 lines
+    for (
+      let i = 0;
+      i < Math.min(words.length, wordsPerLine * 2);
+      i += wordsPerLine
+    ) {
+      lines.push(words.slice(i, i + wordsPerLine).join(' '));
+    }
+
+    return lines;
+  }
+
+  getAbstractAllLines(
+    value: string | null,
+    wordsPerLine: number = 12
+  ): string[] {
+    if (!value) return [];
+    if (typeof value !== 'string') value = String(value);
+
+    const words = value.split(/\s+/);
+    let lines: string[] = [];
+
     for (let i = 0; i < words.length; i += wordsPerLine) {
       lines.push(words.slice(i, i + wordsPerLine).join(' '));
     }
-    return lines.join('\n');
+
+    return lines;
+  }
+
+  isAbstractLong(value: string | null, wordsPerLine: number = 12): boolean {
+    if (!value) return false;
+    const words = value.split(/\s+/);
+    return words.length > wordsPerLine * 2;
+  }
+
+  toggleAbstract(rowIndex: number): void {
+    if (this.expandedAbstractRows.has(rowIndex)) {
+      this.expandedAbstractRows.delete(rowIndex);
+    } else {
+      this.expandedAbstractRows.add(rowIndex);
+    }
   }
 }

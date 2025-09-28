@@ -8,16 +8,58 @@ import os
 import openpyxl
 from .views import safe_cell_value,save_image_to_disk
 from .models import ExcelFile, Sheet, SheetEntry, Image
+from rest_framework.permissions import AllowAny
 
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status, permissions
-# from django.contrib.auth.models import User
 from .models import ClientFile, ExcelFile, Sheet, SheetEntry, Image
-# import os
-# import openpyxl
-# from .views import safe_cell_value, save_image_to_disk
+
+
+import pdfplumber
+import re
+
+def extract_pdf_tabs(pdf_path):
+    tabs = []
+    current_tab = None
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            text = page.extract_text()
+            if not text:
+                continue
+            lines = text.split('\n') if text else []
+            tables = page.extract_tables()
+            for line in lines:
+                # Heading detection: e.g. "1.4 Patent References"
+                if re.match(r'^\d+\.\d+ ', line.strip()):
+                    current_tab = {"heading": line.strip(), "content": []}
+                    tabs.append(current_tab)
+                elif current_tab:
+                    current_tab["content"].append(line)
+            for table in tables:
+                if current_tab:
+                    current_tab["content"].append({"table": table})
+    return tabs
+
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from .models import ExcelFile
+
+class PdfTabsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        try:
+            excel_file = ExcelFile.objects.get(id=file_id)
+        except ExcelFile.DoesNotExist:
+            return Response({"error": "PDF not found"}, status=404)
+
+        pdf_path = excel_file.file.path
+        tabs = extract_pdf_tabs(pdf_path)
+        return Response(excel_file.pdf_tabs or [])
+
+
 
 class AdminFileUploadView(APIView):
     permission_classes = [permissions.IsAdminUser]
@@ -133,6 +175,11 @@ class AdminFileUploadView(APIView):
                 num_pages = None
                 pdf_info = {}
 
+            pdf_path = pdf_file.file.path
+            tabs = extract_pdf_tabs(pdf_path)
+            pdf_file.pdf_tabs = tabs
+            pdf_file.save()
+
             file_url = request.build_absolute_uri(pdf_file.file.url) if pdf_file.file else None
             return Response({
                 "type": "pdf",
@@ -142,6 +189,7 @@ class AdminFileUploadView(APIView):
                 "file_url": pdf_file.file.url if pdf_file.file else "",
                 "num_pages": num_pages,
                 "pdf_info": {k: str(v) for k, v in pdf_info.items()} if pdf_info else {},
+                "pdf_tabs": tabs,
                 "message": "PDF uploaded successfully."
             }, status=status.HTTP_201_CREATED)
 
@@ -163,13 +211,15 @@ class ClientFileListView(generics.ListAPIView):
 
 
 
-from rest_framework import generics
+# from rest_framework import generics
 from .serializers import RegisterSerializer
 from django.contrib.auth.models import User
+from rest_framework import generics, permissions
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 

@@ -1,37 +1,72 @@
 <div class="table-wrapper" *ngIf="sheet">
   <h2 class="heading">{{ safeSheet.name }}</h2>
-
   <div class="table-scroll">
     <table class="biblio-table">
       <thead>
         <tr>
-          <th *ngFor="let list of getHeaders(); let i = index" [ngClass]="getColumnClass(list)">
-            {{ list }}
-          </th>
+          <th *ngFor="let head of getHeaders()">{{ head }}</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let row of getDataRows(); let rowIndex = index">
-          <td *ngFor="let cell of row; let i = index" [ngClass]="getColumnClass(getHeaders()[i])">
-            <ng-container *ngIf="isCellExpanded(rowIndex, i); else shortText">
-              <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">
-                <span class="matrix-text">{{ getWordWrappedText(cell.value, 10) }}</span>
-              </a>
-              <span *ngIf="!cell?.hyperlink" class="matrix-text">
-                {{ getWordWrappedText(cell.value, 10) }}
+          <td *ngFor="let cell of row; let colIndex = index">
+
+            <!-- Family Members column -->
+            <ng-container *ngIf="getHeaders()[colIndex].toLowerCase() === 'family members'; else checkAbstract">
+              <!-- Collapsed -->
+              <span *ngIf="!expandedFamilyRows.has(rowIndex)">
+                <ul style="margin:0; padding-left:18px;">
+                  <li *ngFor="let member of getFamilyPreview(cell.value)">{{ member }}</li>
+                </ul>
+                <a *ngIf="isFamilyLong(cell.value)" 
+                   (click)="toggleFamily(rowIndex)" 
+                   style="cursor:pointer; color:#2563eb;">...more</a>
               </span>
-              <a href="#" (click)="collapseCell($event, rowIndex, i)" class="matrix-link">less</a>
+
+              <!-- Expanded -->
+              <span *ngIf="expandedFamilyRows.has(rowIndex)">
+                <ul style="margin:0; padding-left:18px;">
+                  <li *ngFor="let member of getFamilyAll(cell.value)">{{ member }}</li>
+                </ul>
+                <a (click)="toggleFamily(rowIndex)" 
+                   style="cursor:pointer; color:#2563eb;"> less</a>
+              </span>
             </ng-container>
-            <ng-template #shortText>
-              <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">
-                <span class="matrix-text">{{ getShortText(cell.value) }}</span>
-              </a>
-              <span *ngIf="!cell?.hyperlink" class="matrix-text">
-                {{ getShortText(cell.value) }}
-              </span>
-              <ng-container *ngIf="isTextLong(cell.value)">
-                ... <a href="#" (click)="expandCell($event, rowIndex, i)" class="matrix-link">more</a>
+
+            <!-- Abstract column -->
+            <ng-template #checkAbstract>
+              <ng-container *ngIf="getHeaders()[colIndex].toLowerCase() === 'abstract'; else normalCell">
+                
+                <!-- Collapsed -->
+                <span *ngIf="!expandedAbstractRows.has(rowIndex)">
+                  <div>
+                    <ng-container *ngFor="let line of getAbstractPreviewLines(cell.value)">
+                      <div>{{ line }}</div>
+                    </ng-container>
+                  </div>
+                  <a *ngIf="isAbstractLong(cell.value)" 
+                     (click)="toggleAbstract(rowIndex)" 
+                     style="cursor:pointer; color:#2563eb;">...more</a>
+                </span>
+
+                <!-- Expanded -->
+                <span *ngIf="expandedAbstractRows.has(rowIndex)">
+                  <div>
+                    <ng-container *ngFor="let line of getAbstractAllLines(cell.value)">
+                      <div>{{ line }}</div>
+                    </ng-container>
+                  </div>
+                  <a (click)="toggleAbstract(rowIndex)" 
+                     style="cursor:pointer; color:#2563eb;"> less</a>
+                </span>
+
               </ng-container>
+            </ng-template>
+
+            <!-- Normal cell -->
+            <ng-template #normalCell>
+              <a *ngIf="cell?.hyperlink" [href]="cell.hyperlink" target="_blank">{{ cell.value }}</a>
+              <span *ngIf="!cell?.hyperlink">{{ cell?.value }}</span>
             </ng-template>
           </td>
         </tr>

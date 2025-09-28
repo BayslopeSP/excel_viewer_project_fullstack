@@ -57,4 +57,7 @@ export class ApiService {
   getMyFiles() {
     return this.http.get<any[]>(`${this.baseUrl}/client/files/`);
   }
+  getPdfTabs(fileId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/pdf-tabs/${fileId}/`);
+  }
 }

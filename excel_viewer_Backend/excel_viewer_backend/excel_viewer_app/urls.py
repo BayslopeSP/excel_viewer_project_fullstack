@@ -8,8 +8,8 @@ from .views import (
     UpdateMappingDateView,
     FilterMappingView,
 )
-from .views_upload import AdminFileUploadView,ClientFileListView,RegisterView,ClientListView,AdminClientFilesView,ClientFileSheetsView
-# from .views_c import ClientFileListView
+from .views_upload import AdminFileUploadView,ClientFileListView,RegisterView,ClientListView,AdminClientFilesView,ClientFileSheetsView,PdfTabsView
+#from .views_c import ClientFileListView
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
@@ -29,6 +29,7 @@ urlpatterns = [
 
     # New Admin/Client File APIs
     path('upload-file/', AdminFileUploadView.as_view(), name='admin-upload-file'),
+    path('pdf-tabs/<int:file_id>/', PdfTabsView.as_view(), name='pdf-tabs'),
     # path('client/files/', ClientFileListView.as_view(), name='client-file-list'),
 
 

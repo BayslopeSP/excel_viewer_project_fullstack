@@ -15,6 +15,7 @@ class ExcelFile(models.Model):
     file_name = models.CharField(max_length=255)
     file = models.FileField(upload_to='uploads/', null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    pdf_tabs = models.JSONField(null=True, blank=True)
 
     def __str__(self):
         return self.file_name

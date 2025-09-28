@@ -295,21 +295,30 @@ export class MappingComponent implements OnChanges, OnInit {
     this.cdr.detectChanges();
   }
 
-  getShortText(text: any): string {
-    if (!text) return '';
-    if (typeof text !== 'string') text = String(text);
-    const lines = text.split('\n');
-    if (lines.length > 3) {
-      return lines.slice(0, 3).join('\n');
+  getShortText(value: any, wordsPerLine: number = 12): string {
+    if (!value) return '';
+    if (typeof value !== 'string') value = String(value);
+
+    const words = value.split(/\s+/);
+    let lines: string[] = [];
+
+    // Sirf 5 lines banani hain
+    for (
+      let i = 0;
+      i < Math.min(words.length, wordsPerLine * 5);
+      i += wordsPerLine
+    ) {
+      lines.push(words.slice(i, i + wordsPerLine).join(' '));
     }
-    return text.length > 200 ? text.slice(0, 200) : text;
+
+    return lines.join('\n');
   }
 
-  isTextLong(text: string): boolean {
-    // if (!text) return false;
-    // return text.split('\n').length > 5 || text.length > 200;
-    if (!text) return false;
-    if (typeof text !== 'string') text = String(text);
-    return text.split('\n').length > 5 || text.length > 200;
+  isTextLong(value: any, wordsPerLine: number = 12): boolean {
+    if (!value) return false;
+    if (typeof value !== 'string') value = String(value);
+
+    const words = value.split(/\s+/);
+    return words.length > wordsPerLine * 5; // agar 5 se zyada line hai to "more"
   }
 }
