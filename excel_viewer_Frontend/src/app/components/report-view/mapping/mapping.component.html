@@ -47,13 +47,14 @@
 
       <!-- Image Columns -->
       <ng-container *ngFor="let colIndex of dynamicColumnIndices; let i = index" [matColumnDef]="'img_' + colIndex">
-        <th mat-header-cell *matHeaderCellDef class="header-cell"></th>
+        <th mat-header-cell *matHeaderCellDef class="header-cell">Images</th>
         <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell image-cell">
           <ng-container *ngIf="getImageForExactCol(rowIndex, i) as imgObj">
             <div class="image-wrapper">
              <!-- <img 
   [src]="'http://localhost:8000' + imgObj.url" -->
-  <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url"
+   <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url"
+  
   alt="cell image"
   class="matrix-img"
   width="600"
