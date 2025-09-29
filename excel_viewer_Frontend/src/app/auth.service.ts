@@ -12,6 +12,9 @@ export class AuthService {
   constructor(private http: HttpClient, private router: Router) {}
 
   // JWT login
+//   
+// 
+
   login(username: string, password: string) {
     return this.http
       .post<any>(this.apiUrl + 'login/', { username, password })
