@@ -36,7 +36,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 SECRET_KEY = 'django-insecure-l))q&5pe9ee(fl!e+c9r0)i(_awaq#!g_wi)o!u-*ll@ll8v5s'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False 
+DEBUG = True 
 
 ALLOWED_HOSTS = [
     "excel-viewer-project-fullstack.onrender.com",
