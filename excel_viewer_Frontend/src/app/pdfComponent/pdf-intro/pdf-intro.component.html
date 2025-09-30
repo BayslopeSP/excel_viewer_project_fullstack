@@ -1,1 +1,12 @@
-<p>pdf-intro works!</p>
+<div class="pdf-intro">
+  <h2>Patentability Search Report</h2>
+  <div *ngIf="title">
+    <strong>{{ title }}</strong>
+  </div>
+  <div *ngIf="caseNo">
+    <strong>{{ caseNo }}</strong>
+  </div>
+  <div *ngIf="date">
+    <strong>{{ date }}</strong>
+  </div>
+</div>

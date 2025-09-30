@@ -10,15 +10,118 @@ from .views import safe_cell_value,save_image_to_disk
 from .models import ExcelFile, Sheet, SheetEntry, Image
 from rest_framework.permissions import AllowAny
 
-
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status, permissions
-# from django.contrib.auth.models import User
 from .models import ClientFile, ExcelFile, Sheet, SheetEntry, Image
-# import os
-# import openpyxl
-# from .views import safe_cell_value, save_image_to_disk
+
+# import pdfplumber
+# import re
+
+
+import pdfplumber
+import re
+
+def extract_pdf_tabs(pdf_path):
+    tabs = []
+    current_tab = None
+    intro_content = []
+
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            tables = page.extract_tables()
+            print("Page tables:", tables)
+            text = page.extract_text()
+            if not text:
+                continue
+            lines = text.split('\n')
+            
+            table_idx = 0
+            for line in lines:
+                # Heading detection
+                if (
+                    re.match(r'^\d+\.\d+ ', line.strip()) or
+                    'disclaimer' in line.strip().lower() or
+                    'central references' in line.strip().lower() or
+                    'feature matrix' in line.strip().lower()
+                ):
+                    if current_tab is None and intro_content:
+                        tabs.append({"heading": "INTRO", "content": intro_content})
+                    current_tab = {"heading": line.strip(), "content": []}
+                    tabs.append(current_tab)
+                    continue
+
+                # Central References: Result detection
+                if current_tab and "central references" in current_tab["heading"].lower():
+                    if re.match(r'^\s*result\s+\d+', line.strip(), re.IGNORECASE):
+                        current_tab["content"].append({"result_heading": line.strip(), "content": []})
+                        continue
+                    if current_tab["content"] and table_idx < len(tables):
+                        last = current_tab["content"][-1]
+                        if isinstance(last, dict) and "content" in last and not last.get("table_added"):
+                            last["content"].append({"table": tables[table_idx]})
+                            last["table_added"] = True
+                            table_idx += 1
+                            continue
+                    if current_tab["content"]:
+                        last = current_tab["content"][-1]
+                        if isinstance(last, dict) and "content" in last:
+                            last["content"].append(line)
+                        else:
+                            current_tab["content"].append(line)
+                    else:
+                        current_tab["content"].append(line)
+                    continue
+
+                # Feature Matrix: Table detection
+                if current_tab and "feature matrix" in current_tab["heading"].lower():
+                    if table_idx < len(tables):
+                        current_tab["content"].append({"table": tables[table_idx]})
+                        table_idx += 1
+                        continue
+
+                # Normal line append
+                if current_tab:
+                    current_tab["content"].append(line)
+                else:
+                    intro_content.append(line)
+
+            # YAHAN TABLES KO ADD KARO (for table in tables ...)
+            for table in tables:
+                if current_tab and "feature matrix" in current_tab["heading"].lower():
+                    current_tab["content"].append({"table": table})
+                elif current_tab and "central references" in current_tab["heading"].lower():
+                    current_tab["content"].append({"table": table})
+                elif current_tab:
+                    current_tab["content"].append({"table": table})
+                elif intro_content is not None:
+                    intro_content.append({"table": table})
+
+    if intro_content and (not tabs or tabs[0]["heading"] != "INTRO"):
+        tabs.insert(0, {"heading": "INTRO", "content": intro_content})
+
+    return tabs
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from .models import ExcelFile
+
+class PdfTabsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        try:
+            excel_file = ExcelFile.objects.get(id=file_id)
+        except ExcelFile.DoesNotExist:
+            return Response({"error": "PDF not found"}, status=404)
+
+        pdf_path = excel_file.file.path
+        tabs = extract_pdf_tabs(pdf_path)
+        for tab in tabs:
+            if "feature matrix" in tab["heading"].lower():
+                print("Feature Matrix Tab Content:", tab["content"])
+        return Response(excel_file.pdf_tabs or [])
+
+
 
 class AdminFileUploadView(APIView):
     permission_classes = [permissions.IsAdminUser]
@@ -134,6 +237,11 @@ class AdminFileUploadView(APIView):
                 num_pages = None
                 pdf_info = {}
 
+            pdf_path = pdf_file.file.path
+            tabs = extract_pdf_tabs(pdf_path)
+            pdf_file.pdf_tabs = tabs
+            pdf_file.save()
+
             file_url = request.build_absolute_uri(pdf_file.file.url) if pdf_file.file else None
             return Response({
                 "type": "pdf",
@@ -143,6 +251,7 @@ class AdminFileUploadView(APIView):
                 "file_url": pdf_file.file.url if pdf_file.file else "",
                 "num_pages": num_pages,
                 "pdf_info": {k: str(v) for k, v in pdf_info.items()} if pdf_info else {},
+                "pdf_tabs": tabs,
                 "message": "PDF uploaded successfully."
             }, status=status.HTTP_201_CREATED)
 

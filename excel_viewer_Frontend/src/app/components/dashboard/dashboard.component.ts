@@ -9,18 +9,32 @@ import { Router, RouterLink } from '@angular/router';
 import { ExcelSheet } from '../../models/excel-sheet.model';
 import { ApiService } from '../../services/api.service';
 import { ReportViewComponent } from '../report-view/report-view.component';
+import { AuthService } from '../../auth.service';
+import { MatTableModule } from '@angular/material/table';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, MatCardModule, MatIconModule, MatButtonModule],
+  imports: [
+    MatTableModule,
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+  ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent implements OnInit {
+  displayedColumns: string[] = ['sno', 'fileName', 'actions'];
+
   excelData: ExcelSheet[] = [];
   isLoading = false;
 
-  constructor(private router: Router, private ApiService: ApiService) {}
+  constructor(
+    private router: Router,
+    private ApiService: ApiService,
+    private authService: AuthService
+  ) {}
 
   createReport() {
     this.router.navigate([`create`], { queryParams: { isNew: true } });
@@ -76,5 +90,13 @@ export class DashboardComponent implements OnInit {
     // }
     //
     //
+  }
+  logout() {
+    // Clear local storage / session tokens
+    localStorage.clear(); // or remove specific token like localStorage.removeItem('access_token')
+    this.authService.logout();
+
+    // Navigate to login page
+    this.router.navigate(['/']);
   }
 }

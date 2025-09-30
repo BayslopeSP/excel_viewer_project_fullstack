@@ -1,0 +1,9 @@
+<div class="feature-matrix">
+  <div *ngFor="let table of tables" class="feature-matrix-table">
+    <table>
+      <tr *ngFor="let row of table">
+        <td *ngFor="let cell of row">{{ cell }}</td>
+      </tr>
+    </table>
+  </div>
+</div>

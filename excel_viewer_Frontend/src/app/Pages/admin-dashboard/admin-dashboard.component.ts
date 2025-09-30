@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTableModule } from '@angular/material/table';
+import { AuthService } from '../../auth.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -30,7 +31,10 @@ export class AdminDashboardComponent implements OnInit {
   file: File | null = null;
   message = '';
 
-  constructor(private fileService: ApiService) {}
+  constructor(
+    private fileService: ApiService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
     this.fileService.getClients().subscribe({
@@ -74,5 +78,8 @@ export class AdminDashboardComponent implements OnInit {
         },
       });
     }
+  }
+  logout() {
+    this.authService.logout();
   }
 }

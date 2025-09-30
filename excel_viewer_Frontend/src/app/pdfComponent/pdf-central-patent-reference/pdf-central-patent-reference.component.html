@@ -1,0 +1,20 @@
+<div class="central-patent-reference">
+  <div class="result-buttons" *ngIf="results.length > 0">
+    <button
+      *ngFor="let result of results; let i = index"
+      (click)="selectResult(i)"
+      [class.selected]="selectedResultIndex === i">
+      {{ result.label }}
+    </button>
+  </div>
+
+  <div class="result-content" *ngIf="results.length">
+    <div class="result-table" *ngIf="results[selectedResultIndex].table.length">
+      <table>
+        <tr *ngFor="let row of results[selectedResultIndex].table">
+          <td *ngFor="let cell of row">{{ cell }}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>

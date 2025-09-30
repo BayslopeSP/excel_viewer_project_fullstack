@@ -1,0 +1,24 @@
+.feature-matrix-table table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.feature-matrix-table td, .feature-matrix-table th {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  vertical-align: top;
+}
+.feature-matrix-text {
+  margin: 8px 0;
+  font-size: 15px;
+}
+
+.feature-matrix-legends {
+  margin-top: 20px;
+  font-size: 15px;
+  color: #444;
+}
+table, td, th {
+  border: 1px solid #ccc;
+  color: #222;
+}

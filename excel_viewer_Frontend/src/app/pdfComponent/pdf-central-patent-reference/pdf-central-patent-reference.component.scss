@@ -1,0 +1,45 @@
+.result-buttons {
+  margin-bottom: 10px;
+}
+.result-buttons button.selected {
+  background: #1976d2;
+  color: #fff;
+}
+.result-buttons button {
+  margin-right: 8px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #eee;
+  cursor: pointer;
+}
+.result-content {
+  margin-top: 10px;
+}
+
+
+.result-buttons {
+  margin-bottom: 10px;
+}
+.result-buttons button.selected {
+  background: #1976d2;
+  color: #fff;
+}
+.result-buttons button {
+  margin-right: 8px;
+  padding: 6px 16px;
+  border: none;
+  border-radius: 4px;
+  background: #eee;
+  cursor: pointer;
+}
+.result-table table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-bottom: 20px;
+}
+.result-table td, .result-table th {
+  border: 1px solid #ccc;
+  padding: 6px 10px;
+  vertical-align: top;
+}
