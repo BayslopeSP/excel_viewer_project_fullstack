@@ -42,6 +42,7 @@ ALLOWED_HOSTS = [
     "excel-viewer-project-fullstack.onrender.com",
     "localhost",
     "127.0.0.1",
+    'https://excel-viewer-frontend.onrender.com'
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
@@ -98,6 +99,7 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "https://excel-viewer-frontend.onrender.com",
+    "https://excel-viewer-frontend.onrender.com"
 ]
 
 ROOT_URLCONF = 'excel_viewer_backend.urls'
