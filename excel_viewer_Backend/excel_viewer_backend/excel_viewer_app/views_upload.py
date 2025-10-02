@@ -17,6 +17,39 @@ from .models import ClientFile, ExcelFile, Sheet, SheetEntry, Image
 
 
 import pdfplumber
+
+def extract_pdf_full(pdf_path):
+    extracted = []
+    with pdfplumber.open(pdf_path) as pdf:
+        for page in pdf.pages:
+            # Extract all tables from this page
+            tables = page.extract_tables()
+            # Extract all text lines from this page
+            text = page.extract_text()
+            lines = text.split('\n') if text else []
+
+            # Merge tables and text in order (line by line)
+            # pdfplumber does not give table position, so we add all text first, then all tables
+            for line in lines:
+                extracted.append(line)
+            for table in tables:
+                extracted.append({"table": table})
+    return extracted
+
+class PdfFullExtractView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        try:
+            excel_file = ExcelFile.objects.get(id=file_id)
+        except ExcelFile.DoesNotExist:
+            return Response({"error": "PDF not found"}, status=404)
+
+        pdf_path = excel_file.file.path
+        full_data = extract_pdf_full(pdf_path)
+        return Response(full_data)
+
+import pdfplumber
 import re
 
 def extract_pdf_tabs(pdf_path):
@@ -42,11 +75,18 @@ def extract_pdf_tabs(pdf_path):
                     'central references' in line.strip().lower() or
                     'feature matrix' in line.strip().lower()
                 ):
-                    if current_tab is None and intro_content:
-                        tabs.append({"heading": "INTRO", "content": intro_content})
-                    current_tab = {"heading": line.strip(), "content": []}
-                    tabs.append(current_tab)
-                    continue
+                    heading = line.strip()
+                    if (
+                        heading.lower().startswith('intro') or
+                        'feature matrix' in heading.lower() or
+                        'central references' in heading.lower() or
+                        'disclaimer' in heading.lower()
+                    ):
+                        if current_tab is None and intro_content:
+                            tabs.append({"heading": "INTRO", "content": intro_content})
+                        current_tab = {"heading": heading, "content": []}
+                        tabs.append(current_tab)
+                        continue
 
                 # Central References: Result detection
                 if current_tab and "central references" in current_tab["heading"].lower():
@@ -119,7 +159,7 @@ class PdfTabsView(APIView):
         for tab in tabs:
             if "feature matrix" in tab["heading"].lower():
                 print("Feature Matrix Tab Content:", tab["content"])
-        return Response(excel_file.pdf_tabs or [])
+        return Response(excel_file.pdf_full or [])
 
 
 
@@ -238,8 +278,10 @@ class AdminFileUploadView(APIView):
                 pdf_info = {}
 
             pdf_path = pdf_file.file.path
-            tabs = extract_pdf_tabs(pdf_path)
-            pdf_file.pdf_tabs = tabs
+            full_data = extract_pdf_full(pdf_path)  # <-- Yeh line
+            # tabs = extract_pdf_tabs(pdf_path)
+            # pdf_file.pdf_tabs = tabs
+            pdf_file.pdf_full = full_data
             pdf_file.save()
 
             file_url = request.build_absolute_uri(pdf_file.file.url) if pdf_file.file else None
@@ -251,7 +293,8 @@ class AdminFileUploadView(APIView):
                 "file_url": pdf_file.file.url if pdf_file.file else "",
                 "num_pages": num_pages,
                 "pdf_info": {k: str(v) for k, v in pdf_info.items()} if pdf_info else {},
-                "pdf_tabs": tabs,
+                # "pdf_tabs": tabs,
+                "pdf_full": full_data,
                 "message": "PDF uploaded successfully."
             }, status=status.HTTP_201_CREATED)
 
