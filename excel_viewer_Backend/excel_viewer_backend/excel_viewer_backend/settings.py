@@ -45,7 +45,7 @@ ALLOWED_HOSTS = [
     'https://excel-viewer-frontend.onrender.com'
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-
+STATIC_URL = "/static/"
 
 # Application definition
 STATIC_URL = '/static/'

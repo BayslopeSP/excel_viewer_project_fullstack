@@ -236,7 +236,7 @@ class AdminFileUploadView(APIView):
                         image_instance.save()
                         image_instances.append(image_instance)
                         images_json.append({
-                            "url": image_instance.image.url,
+                            "url": request.build_absolute_uri(f"/media/{image_instance.image.name}"),
                             "row": row + 1,
                             "column": col + 1,
                             "cell_value": cell_value,
@@ -443,3 +443,15 @@ class ClientFileSheetsView(APIView):
             all_data.append(file_data)
 
         return Response(all_data)
+    
+from django.http import FileResponse, Http404
+import mimetypes
+import os
+from django.conf import settings
+
+def serve_media(request, path):
+    file_path = os.path.join(settings.MEDIA_ROOT, path)
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+    mime_type, _ = mimetypes.guess_type(file_path)
+    return FileResponse(open(file_path, "rb"), content_type=mime_type or "application/octet-stream")
