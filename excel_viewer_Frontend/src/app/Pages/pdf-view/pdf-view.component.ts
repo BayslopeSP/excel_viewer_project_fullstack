@@ -2,16 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { SafePipe } from '../../safe.pipe';
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { PdfIntroComponent } from '../../pdfComponent/pdf-intro/pdf-intro.component';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { FormsModule } from '@angular/forms';
-import { PdfIntroComponent } from '../../pdfComponent/pdf-intro/pdf-intro.component';
+import { ChangeDetectorRef } from '@angular/core';
 import { PdfFeatureMatrixComponent } from '../../pdfComponent/pdf-feature-matrix/pdf-feature-matrix.component';
-// import { DisclaimerComponent } from '../../pdfComponent/disclaimer/disclaimer.component';
-import { PdfdisclaimerComponent } from '../../pdfComponent/pdfdisclaimer/pdfdisclaimer.component';
-import { PdfCentralPatentReferenceComponent } from '../../pdfComponent/pdf-central-patent-reference/pdf-central-patent-reference.component';
 
 @Component({
   selector: 'app-pdf-view',
@@ -23,50 +18,93 @@ import { PdfCentralPatentReferenceComponent } from '../../pdfComponent/pdf-centr
     RouterModule,
     PdfIntroComponent,
     PdfFeatureMatrixComponent,
-    PdfdisclaimerComponent,
-    PdfCentralPatentReferenceComponent
   ],
   templateUrl: './pdf-view.component.html',
   styleUrl: './pdf-view.component.scss',
 })
 export class PdfViewComponent implements OnInit {
   fileId!: number;
-  pdfUrl: string = '';
-  fileName: string = '';
+  introLines: string[] = [];
 
-  constructor(private route: ActivatedRoute, private apiService: ApiService) {}
-
-  pdfTabs: any[] = [];
-  // fileId!: number;
+  constructor(
+    private route: ActivatedRoute,
+    private apiService: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params) => {
       this.fileId = +params['fileId'];
       if (this.fileId) {
-        this.loadPdfTabs();
+        this.loadPdfFull();
       }
     });
   }
+  featureMatrixLines: any[] = [];
 
-  loadPdfTabs(): void {
-    this.apiService.getPdfTabs(this.fileId).subscribe({
+  extractFeatureMatrix(data: any[]): any[] {
+    const featureMatrix: any[] = [];
+    let start = false;
+    for (const line of data) {
+      if (
+        typeof line === 'string' &&
+        line
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .includes('15featurematrix')
+      ) {
+        start = true;
+        continue;
+      }
+      if (
+        start &&
+        typeof line === 'string' &&
+        line
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, '')
+          .includes('2centralreferences')
+      ) {
+        break;
+      }
+      if (start) {
+        featureMatrix.push(line);
+      }
+    }
+    return featureMatrix;
+  }
+
+  loadPdfFull(): void {
+    this.apiService.getPdfFull(this.fileId).subscribe({
       next: (data) => {
-        this.pdfTabs = data;
-        console.log('PDF Tabs:', this.pdfTabs);
+        this.introLines = this.extractIntro(data);
+
+        console.log('Intro Lines:', this.introLines);
+        this.featureMatrixLines = this.extractFeatureMatrix(data);
+        console.log('Feature Matrix Lines:', this.featureMatrixLines);
+        this.cdr.detectChanges(); // Force Angular to update the view
+        // console.log('Intro Lines:', this.introLines);
       },
       error: (err) => {
-        console.error('Failed to fetch PDF tabs:', err);
+        console.error('Failed to fetch PDF full:', err);
       },
     });
   }
 
-  get filteredPdfTabs() {
-    return this.pdfTabs.filter(
-      (tab) =>
-        tab.heading === 'INTRO' ||
-        tab.heading.toLowerCase().includes('feature matrix') ||
-        tab.heading.toLowerCase().includes('disclaimer') ||
-        tab.heading.toLowerCase().includes('central')
-    );
+  extractIntro(data: string[]): string[] {
+    const intro: string[] = [];
+    for (const line of data) {
+      if (
+        (typeof line === 'string' && line.match(/^\d+\.\d+/)) ||
+        (typeof line === 'string' &&
+          line.toLowerCase().includes('feature matrix')) ||
+        (typeof line === 'string' &&
+          line.toLowerCase().includes('central references')) ||
+        (typeof line === 'string' && line.toLowerCase().includes('disclaimer'))
+      ) {
+        break;
+      }
+      intro.push(line);
+    }
+    return intro;
   }
 }

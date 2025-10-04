@@ -1,7 +1,10 @@
-<div class="pdf-intro">
-  <h2>Patentability Search Report</h2>
-  <div *ngIf="title">
-    <strong>{{ title }}</strong>
+<!-- <div class="pdf-intro">
+  <div *ngIf="fileName">
+    <h2>{{ fileName }}</h2>
+  </div>
+  <div *ngIf="titleLines.length">
+    <strong>TITLE:</strong>
+    <div *ngFor="let line of titleLines">{{ line }}</div>
   </div>
   <div *ngIf="caseNo">
     <strong>{{ caseNo }}</strong>
@@ -9,4 +12,12 @@
   <div *ngIf="date">
     <strong>{{ date }}</strong>
   </div>
+</div> -->
+
+
+
+<div class="pdf-intro">
+  <ng-container *ngFor="let line of data">
+    <div>{{ line }}</div>
+  </ng-container>
 </div>

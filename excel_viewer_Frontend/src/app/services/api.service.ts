@@ -6,12 +6,12 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ApiService {
-  // private baseUrl = 'http://localhost:8000/api';
-  private baseUrl = 'https://excel-viewer-project-fullstack.onrender.com/api';
+  private baseUrl = 'http://localhost:8000/api';
+  // private baseUrl = 'https://excel-viewer-project-fullstack.onrender.com/api';
 
   constructor(private http: HttpClient) {}
-  // 
-  // 
+  //
+  //
 
   uploadExcel(file: File): Observable<any> {
     const formData = new FormData();
@@ -61,5 +61,8 @@ export class ApiService {
   }
   getPdfTabs(fileId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/pdf-tabs/${fileId}/`);
+  }
+  getPdfFull(fileId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/pdf-full/${fileId}/`);
   }
 }

@@ -9,12 +9,14 @@
   </div>
 
   <div class="result-content" *ngIf="results.length">
-    <div class="result-table" *ngIf="results[selectedResultIndex].table.length">
-      <table>
-        <tr *ngFor="let row of results[selectedResultIndex].table">
-          <td *ngFor="let cell of row">{{ cell }}</td>
-        </tr>
-      </table>
-    </div>
+    <ng-container *ngFor="let table of results[selectedResultIndex].tables">
+      <div class="result-table">
+        <table>
+          <tr *ngFor="let row of table">
+            <td *ngFor="let cell of row">{{ cell }}</td>
+          </tr>
+        </table>
+      </div>
+    </ng-container>
   </div>
 </div>

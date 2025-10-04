@@ -5,9 +5,9 @@ import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    // private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
+    private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
     // https://excel-viewer-project-fullstack.onrender.com
-  private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
+  // private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
 
   constructor(private http: HttpClient, private router: Router) {}
 

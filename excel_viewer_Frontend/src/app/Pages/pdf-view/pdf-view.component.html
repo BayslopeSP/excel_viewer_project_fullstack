@@ -3,17 +3,13 @@
 </div>
 
 <mat-tab-group>
-  <mat-tab *ngFor="let tab of filteredPdfTabs" [label]="tab.heading">
-    <ng-container>
-      <app-pdf-intro *ngIf="tab.heading === 'INTRO'" [data]="tab.content"></app-pdf-intro>
-      <app-pdf-feature-matrix *ngIf="tab.heading.toLowerCase().includes('feature matrix')" [data]="tab.content"></app-pdf-feature-matrix>
-      <app-pdfdisclaimer *ngIf="tab.heading.toLowerCase().includes('disclaimer')" [data]="tab.content"></app-pdfdisclaimer>
-      <!-- <app-pdf-central-patent-reference [data]="tab.content"></app-pdf-central-patent-reference> -->
-      <app-pdf-central-patent-reference *ngIf="tab.heading.toLowerCase().includes('central')" [data]="tab.content"></app-pdf-central-patent-reference>
-    </ng-container>
+  <mat-tab label="Intro">
+    <!-- <app-pdf-intro [data]="introLines"></app-pdf-intro> -->
+     <app-pdf-intro [data]="introLines"></app-pdf-intro>
+     <!-- <app-pdf-feature-matrix></app-pdf-feature-matrix> -->
+
+  </mat-tab>
+   <mat-tab label="1.5 Feature Matrix">
+    <app-pdf-feature-matrix [data]="featureMatrixLines"></app-pdf-feature-matrix>
   </mat-tab>
 </mat-tab-group>
-
-<ng-template #loading>
-  <p>Loading PDF...</p>
-</ng-template>

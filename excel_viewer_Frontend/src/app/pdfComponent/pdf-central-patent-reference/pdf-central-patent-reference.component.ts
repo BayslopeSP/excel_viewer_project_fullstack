@@ -10,44 +10,23 @@ import { Component, Input, OnInit } from '@angular/core';
 })
 export class PdfCentralPatentReferenceComponent implements OnInit {
   @Input() data: any[] = [];
-  results: { label: string; table: any[][] }[] = [];
+  results: { label: string; tables: any[][][] }[] = [];
   selectedResultIndex: number = 0;
 
   ngOnInit(): void {
     this.results = [];
     for (const item of this.data) {
       if (item.result_heading && Array.isArray(item.content)) {
-        // Find table header
-        let table: any[][] = [];
-        let headerRow: string[] = [];
-        let rows: string[][] = [];
-        let headerFound = false;
-        for (let i = 0; i < item.content.length; i++) {
-          const line = item.content[i];
-          if (
-            typeof line === 'string' &&
-            line.toLowerCase().includes('s. no. key features relevant text for')
-          ) {
-            headerRow = [line];
-            headerFound = true;
-            continue;
-          }
-          if (headerFound && typeof line === 'string') {
-            // Stop at next result_heading or empty line
-            if (
-              (typeof line === 'string' &&
-                line.toLowerCase().includes('result')) ||
-              line.trim() === ''
-            ) {
-              break;
-            }
-            rows.push([line]);
+        const tables: any[][][] = [];
+        for (const line of item.content) {
+          if (line && line.table) {
+            tables.push(line.table);
           }
         }
-        if (headerRow.length > 0 && rows.length > 0) {
-          table = [headerRow, ...rows];
-        }
-        this.results.push({ label: item.result_heading, table });
+        this.results.push({
+          label: item.result_heading,
+          tables,
+        });
       }
     }
     console.log('Central Reference Results:', this.results);
