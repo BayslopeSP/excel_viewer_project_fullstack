@@ -1,4 +1,92 @@
 /* You can add global styles to this file, and also import other style files */
 
-html, body { height: 100%; }
-body { margin: 0; font-family: 'Tenorite', sans-serif; }
+// html, body { height: 100%; }
+// body { margin: 0; font-family: 'Tenorite', sans-serif; }
+
+
+
+
+/* Step 1: Define the custom 'Tenorite' font using @font-face */
+@font-face {
+  font-family: 'Tenorite';
+  src: url('https://db.onlinewebfonts.com/t/604c4aa7925b327ca117a55ba49275cd.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Step 2: Apply "Tenorite" font globally */
+* {
+  font-family: 'Tenorite', sans-serif !important;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Tenorite', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Step 3: Adjust the app root container */
+app-root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Step 4: Style for dark mode */
+.dark-mode {
+  color: #ffffff !important;
+}
+
+.main-content {
+  flex: 1;
+}
+
+/* Optional: drawer UI styling */
+::ng-deep .mat-drawer-inner-container {
+  width: 100% !important;
+  height: 65% !important;
+  background: var(--content-bg);
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+::ng-deep .mat-drawer-inner-container:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Ensure text does not overflow */
+::ng-deep .mat-mdc-chip-action-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.mat-mdc-standard-chip .mat-mdc-chip-action-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Optional: Material icons, FontAwesome, etc. font-family reset */
+.material-symbols-outlined,
+.mat-icon,
+.material-icons,
+.fa,
+.fas,
+.far,
+.fal,
+.fab {
+  font-family: 'Material Icons', 'Material Symbols Outlined', 'FontAwesome', sans-serif !important;
+}
+
+/* Ensure other components also use Tenorite font */
+:host ::ng-deep {
+  font-family: 'Tenorite', sans-serif !important;
+}
