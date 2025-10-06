@@ -51,8 +51,9 @@
         <td mat-cell *matCellDef="let row; let rowIndex = index" class="data-cell image-cell">
           <ng-container *ngIf="getImageForExactCol(rowIndex, i) as imgObj">
             <div class="image-wrapper">
-             <img 
-  [src]="'http://localhost:8000' + imgObj.url"
+             <!-- <img 
+  [src]="'http://localhost:8000' + imgObj.url" -->
+  <img [src]="'https://excel-viewer-project-fullstack.onrender.com' + imgObj.url"
   
   
   alt="cell image"
