@@ -13,7 +13,33 @@ from rest_framework.permissions import AllowAny
 from .models import ClientFile, ExcelFile, Sheet, SheetEntry, Image
 
 # import pdfplumber
-# import re
+# import re\\
+
+
+REQUIRED_SHEETS = [
+    "COVER PAGE",
+    "TABLE OF CONTENTS",
+    "OBJECTIVE & METHODOLOGY",
+    "OVERVIEW",
+    "PRIMARY RESULTS - MATRIX",
+    "PRIMARY RESULTS - MAPPING",
+    "PRIMARY RESULTS - BIBLIO",
+    "SECONDARY RESULTS",
+    "SEARCH STRINGS",
+    "DISCLAIMER"
+]
+
+def validate_required_sheets(sheetnames):
+    sheetnames_upper = [name.strip().upper() for name in sheetnames]
+    missing = [sheet for sheet in REQUIRED_SHEETS if sheet.upper() not in sheetnames_upper]
+    return missing
+
+def is_sheet_meaningful(ws):
+    for row in ws.iter_rows():
+        row_data = [cell.value for cell in row if cell.value not in [None, '', ' ']]
+        if row_data:
+            return True
+    return False
 
 
 import pdfplumber
@@ -163,6 +189,155 @@ class PdfTabsView(APIView):
 
 
 
+# class AdminFileUploadView(APIView):
+#     permission_classes = [permissions.IsAdminUser]
+
+#     def post(self, request):
+#         user_id = request.data.get('user_id')
+#         file_obj = request.FILES.get('file')
+#         file_name = file_obj.name if file_obj else None
+
+#         if not user_id or not file_obj:
+#             return Response({'error': 'user_id and file are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+#         try:
+#             user = User.objects.get(id=user_id)
+#         except User.DoesNotExist:
+#             return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+#         filename = file_obj.name
+#         ext = os.path.splitext(filename)[1].lower()
+
+#         if ext in ['.xlsx', '.xls']:
+#             try:
+#                 wb = openpyxl.load_workbook(file_obj, data_only=False)
+#             except Exception as e:
+#                 return Response({"error": f"Invalid Excel file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+#             # Reset file pointer for saving
+#             file_obj.seek(0)
+#             excel_file = ExcelFile.objects.create(file_name=filename, file=file_obj)
+#             client_file = ClientFile.objects.create(
+#                 user=user,
+#                 file=file_obj,
+#                 file_name=filename,
+#                 excel_file=excel_file
+#             )
+
+#             response_data = {"type": "excel", "excel_file_id": excel_file.id, "client_file_id": client_file.id, "sheets": []}
+
+#             for sheet_name in wb.sheetnames:
+#                 ws = wb[sheet_name]
+#                 sheet = Sheet.objects.create(
+#                     name=sheet_name,
+#                     excel_file=excel_file,
+#                     merged_cells=[str(merge) for merge in ws.merged_cells.ranges],
+#                     column_widths={col_letter: ws.column_dimensions[col_letter].width for col_letter in ws.column_dimensions},
+#                     row_heights={row_num: ws.row_dimensions[row_num].height for row_num in ws.row_dimensions},
+#                 )
+
+#                 rows = []
+#                 for row in ws.iter_rows():
+#                     row_data = [safe_cell_value(cell, sheet_name) for cell in row]
+#                     rows.append(row_data)
+
+#                 SheetEntry.objects.create(sheet=sheet, row_data=rows)
+
+#                 # Images
+#                 image_instances = []
+#                 images_json = []
+#                 for img in getattr(ws, '_images', []):
+#                     image_instance = save_image_to_disk(img)
+#                     if image_instance:
+#                         anchor = img.anchor._from
+#                         row = anchor.row
+#                         col = anchor.col
+#                         try:
+#                             cell = ws.cell(row=row + 1, column=col + 1)
+#                             cell_value = str(cell.value).strip() if cell.value else ''
+#                         except Exception as e:
+#                             cell_value = ''
+#                         image_instance.row = row
+#                         image_instance.column = col
+#                         image_instance.save()
+#                         image_instances.append(image_instance)
+#                         images_json.append({
+#                             "url": request.build_absolute_uri(f"/media/{image_instance.image.name}"),
+#                             "row": row + 1,
+#                             "column": col + 1,
+#                             "cell_value": cell_value,
+#                         })
+
+#                 sheet.images.set(image_instances)
+#                 sheet.save()
+
+#                 response_data["sheets"].append({
+#                     "id": sheet.id,
+#                     "name": sheet.name,
+#                     "columns": rows[0] if rows else [],
+#                     "rows": rows[1:] if rows else [],
+#                     "merged_cells": sheet.merged_cells,
+#                     "column_widths": sheet.column_widths,
+#                     "row_heights": sheet.row_heights,
+#                     "images": images_json,
+#                 })
+
+#             return Response(response_data, status=status.HTTP_201_CREATED)
+
+#         elif ext == '.pdf':
+#             # --- PDF Handling ---
+#             from PyPDF2 import PdfReader
+#             file_obj.seek(0)
+#             pdf_file = ExcelFile.objects.create(file_name=filename, file=file_obj)
+#             client_file = ClientFile.objects.create(
+#                 user=user,
+#                 file=file_obj,
+#                 file_name=filename,
+#                 excel_file=pdf_file
+#             )
+#             try:
+#                 reader = PdfReader(file_obj)
+#                 num_pages = len(reader.pages)
+#                 pdf_info = reader.metadata
+#             except Exception as e:
+#                 num_pages = None
+#                 pdf_info = {}
+
+#             pdf_path = pdf_file.file.path
+#             full_data = extract_pdf_full(pdf_path)  # <-- Yeh line
+#             # tabs = extract_pdf_tabs(pdf_path)
+#             # pdf_file.pdf_tabs = tabs
+#             pdf_file.pdf_full = full_data
+#             pdf_file.save()
+
+#             file_url = request.build_absolute_uri(pdf_file.file.url) if pdf_file.file else None
+#             return Response({
+#                 "type": "pdf",
+#                 "pdf_file_id": pdf_file.id,
+#                 "client_file_id": client_file.id,
+#                 "file_name": pdf_file.file_name,
+#                 "file_url": pdf_file.file.url if pdf_file.file else "",
+#                 "num_pages": num_pages,
+#                 "pdf_info": {k: str(v) for k, v in pdf_info.items()} if pdf_info else {},
+#                 # "pdf_tabs": tabs,
+#                 "pdf_full": full_data,
+#                 "message": "PDF uploaded successfully."
+#             }, status=status.HTTP_201_CREATED)
+
+#         else:
+#             return Response({"error": "Unsupported file type."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status, permissions
+from django.contrib.auth.models import User
+from .models import ClientFile, ExcelFile, Sheet, SheetEntry
+from .views import safe_cell_value, save_image_to_disk
+import os
+import openpyxl
+from PyPDF2 import PdfReader
+
 class AdminFileUploadView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -188,6 +363,25 @@ class AdminFileUploadView(APIView):
             except Exception as e:
                 return Response({"error": f"Invalid Excel file: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
 
+            # ➤ Validate required sheets
+            missing_sheets = validate_required_sheets(wb.sheetnames)
+            if missing_sheets:
+                return Response({
+                    "error": "Excel is missing required sheets.",
+                    "missing_sheets": missing_sheets
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            # ➤ Validate file has meaningful data
+            valid_sheet_found = False
+            for sheet_name in wb.sheetnames:
+                ws = wb[sheet_name]
+                if is_sheet_meaningful(ws):
+                    valid_sheet_found = True
+                    break
+
+            if not valid_sheet_found:
+                return Response({"error": "Excel file does not contain any meaningful data."}, status=status.HTTP_400_BAD_REQUEST)
+
             # Reset file pointer for saving
             file_obj.seek(0)
             excel_file = ExcelFile.objects.create(file_name=filename, file=file_obj)
@@ -198,10 +392,16 @@ class AdminFileUploadView(APIView):
                 excel_file=excel_file
             )
 
-            response_data = {"type": "excel", "excel_file_id": excel_file.id, "client_file_id": client_file.id, "sheets": []}
+            response_data = {
+                "type": "excel",
+                "excel_file_id": excel_file.id,
+                "client_file_id": client_file.id,
+                "sheets": []
+            }
 
             for sheet_name in wb.sheetnames:
                 ws = wb[sheet_name]
+
                 sheet = Sheet.objects.create(
                     name=sheet_name,
                     excel_file=excel_file,
@@ -217,7 +417,7 @@ class AdminFileUploadView(APIView):
 
                 SheetEntry.objects.create(sheet=sheet, row_data=rows)
 
-                # Images
+                # ➤ Handle Images
                 image_instances = []
                 images_json = []
                 for img in getattr(ws, '_images', []):
@@ -229,7 +429,7 @@ class AdminFileUploadView(APIView):
                         try:
                             cell = ws.cell(row=row + 1, column=col + 1)
                             cell_value = str(cell.value).strip() if cell.value else ''
-                        except Exception as e:
+                        except:
                             cell_value = ''
                         image_instance.row = row
                         image_instance.column = col
@@ -260,7 +460,6 @@ class AdminFileUploadView(APIView):
 
         elif ext == '.pdf':
             # --- PDF Handling ---
-            from PyPDF2 import PdfReader
             file_obj.seek(0)
             pdf_file = ExcelFile.objects.create(file_name=filename, file=file_obj)
             client_file = ClientFile.objects.create(
@@ -269,6 +468,7 @@ class AdminFileUploadView(APIView):
                 file_name=filename,
                 excel_file=pdf_file
             )
+
             try:
                 reader = PdfReader(file_obj)
                 num_pages = len(reader.pages)
@@ -278,9 +478,7 @@ class AdminFileUploadView(APIView):
                 pdf_info = {}
 
             pdf_path = pdf_file.file.path
-            full_data = extract_pdf_full(pdf_path)  # <-- Yeh line
-            # tabs = extract_pdf_tabs(pdf_path)
-            # pdf_file.pdf_tabs = tabs
+            full_data = extract_pdf_full(pdf_path)
             pdf_file.pdf_full = full_data
             pdf_file.save()
 
@@ -290,10 +488,9 @@ class AdminFileUploadView(APIView):
                 "pdf_file_id": pdf_file.id,
                 "client_file_id": client_file.id,
                 "file_name": pdf_file.file_name,
-                "file_url": pdf_file.file.url if pdf_file.file else "",
+                "file_url": file_url,
                 "num_pages": num_pages,
                 "pdf_info": {k: str(v) for k, v in pdf_info.items()} if pdf_info else {},
-                # "pdf_tabs": tabs,
                 "pdf_full": full_data,
                 "message": "PDF uploaded successfully."
             }, status=status.HTTP_201_CREATED)
@@ -455,3 +652,31 @@ def serve_media(request, path):
         raise Http404("File not found")
     mime_type, _ = mimetypes.guess_type(file_path)
     return FileResponse(open(file_path, "rb"), content_type=mime_type or "application/octet-stream")
+
+
+
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status, permissions
+from .models import ClientFile, ExcelFile
+
+class DeleteClientFileView(APIView):
+    permission_classes = [permissions.IsAdminUser]  # Only admin can delete
+
+    def delete(self, request, file_id):
+        try:
+            client_file = ClientFile.objects.get(id=file_id)
+        except ClientFile.DoesNotExist:
+            return Response({"error": "File not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Optionally delete related ExcelFile as well
+        if client_file.excel_file:
+            client_file.excel_file.delete()
+
+        # Delete the main file
+        if client_file.file and client_file.file.path and os.path.exists(client_file.file.path):
+            os.remove(client_file.file.path)
+
+        client_file.delete()
+
+        return Response({"message": "File deleted successfully."}, status=status.HTTP_204_NO_CONTENT)

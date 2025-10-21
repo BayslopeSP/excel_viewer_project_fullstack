@@ -16,11 +16,7 @@ export const routes: Routes = [
     path: 'upload',
     component: UploadFileComponent,
   },
-  {
-    path: '',
-    redirectTo: '/login',
-    pathMatch: 'full',
-  },
+
   {
     path: 'dashboard',
     component: DashboardComponent,
@@ -34,7 +30,7 @@ export const routes: Routes = [
     path: 'mapping',
     component: MappingComponent, // 👈 add this
   },
-  { path: 'login', component: LoginComponent },
+  { path: '', component: LoginComponent,pathMatch: 'full', },
   { path: 'signup', component: SignupComponent },
   { path: 'admin', component: AdminDashboardComponent },
   { path: 'client', component: ClientDashboardComponent },

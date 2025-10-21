@@ -82,4 +82,18 @@ export class AdminDashboardComponent implements OnInit {
   logout() {
     this.authService.logout();
   }
+
+  deleteFile(fileId: number): void {
+    if (confirm('Are you sure you want to delete this file?')) {
+      this.fileService.deleteFile(fileId).subscribe({
+        next: () => {
+          this.message = 'File deleted.';
+          this.onClientChange(); // Refresh file list
+        },
+        error: () => {
+          this.message = 'Failed to delete file.';
+        },
+      });
+    }
+  }
 }

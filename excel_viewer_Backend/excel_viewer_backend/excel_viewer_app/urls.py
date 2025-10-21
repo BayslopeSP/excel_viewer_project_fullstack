@@ -8,7 +8,7 @@ from .views import (
     UpdateMappingDateView,
     FilterMappingView,
 )
-from .views_upload import AdminFileUploadView,ClientFileListView,RegisterView,ClientListView,AdminClientFilesView,ClientFileSheetsView,PdfTabsView,PdfFullExtractView
+from .views_upload import AdminFileUploadView,ClientFileListView,RegisterView,ClientListView,AdminClientFilesView,ClientFileSheetsView,PdfTabsView,PdfFullExtractView,DeleteClientFileView
 #from .views_c import ClientFileListView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -41,4 +41,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('clients/', ClientListView.as_view(), name='client-list'),
     path('admin/client/<int:user_id>/files/', AdminClientFilesView.as_view(), name='admin-client-files'),
+    path('delete-file/<int:file_id>/', DeleteClientFileView.as_view(), name='delete-file'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

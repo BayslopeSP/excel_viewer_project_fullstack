@@ -45,8 +45,15 @@
             </mat-cell>
           </ng-container>
 
-          <mat-header-row *matHeaderRowDef="['file_name','download']"></mat-header-row>
-          <mat-row *matRowDef="let row; columns: ['file_name','download'];"></mat-row>
+          <ng-container matColumnDef="delete">
+    <mat-header-cell *matHeaderCellDef> Delete </mat-header-cell>
+    <mat-cell *matCellDef="let element">
+      <button mat-button color="warn" (click)="deleteFile(element.id)">Delete</button>
+    </mat-cell>
+  </ng-container>
+
+          <mat-header-row *matHeaderRowDef="['file_name','download','delete']"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: ['file_name','download','delete'];"></mat-row>
         </mat-table>
 
         <div *ngIf="files.length === 0">No files uploaded yet.</div>

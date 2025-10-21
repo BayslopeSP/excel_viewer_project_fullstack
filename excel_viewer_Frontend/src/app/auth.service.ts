@@ -5,9 +5,10 @@ import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    // private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
+    private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
     // https://excel-viewer-project-fullstack.onrender.com
-  private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
+  // private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
+  // private apiUrl = '';
 
   constructor(private http: HttpClient, private router: Router) {}
 // 
@@ -62,7 +63,7 @@ export class AuthService {
   logout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    this.router.navigate(['/login']);
+    this.router.navigate(['/']);
   }
 
   isLoggedIn() {

@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-cover-page',
+  
   imports: [CommonModule,FormsModule,ReactiveFormsModule,MatCardModule, MatTableModule, MatCheckboxModule],
   templateUrl: './cover-page.component.html',
   styleUrl: './cover-page.component.scss'

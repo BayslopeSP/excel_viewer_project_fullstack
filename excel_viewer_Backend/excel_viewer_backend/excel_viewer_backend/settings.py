@@ -61,8 +61,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'excel_viewer_app',
-    'cloudinary',
-    'cloudinary_storage',
+    # 'cloudinary',
+    # 'cloudinary_storage',
 ]
 
 REST_FRAMEWORK = {
@@ -131,7 +131,32 @@ WSGI_APPLICATION = 'excel_viewer_backend.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
-DATABASES = {"default": env.db("DATABASE_URL")}  # Read database URL from .env
+# DATABASES = {"default": env.db("DATABASE_URL")}  # Read database URL from .env
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "postgres",  # supabase ka db name (default postgres hi hota hai)
+#         "USER": "postgres.hqqieessuouiyablhoie",  # tumhara Supabase ka user
+#         "PASSWORD": "Admins@123_",  # tumhara password
+#         "HOST": "aws-1-ap-southeast-1.pooler.supabase.com",
+#         "PORT": "5432",
+#     }
+# }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "postgres",  # Supabase DB ka name
+        "USER": "postgres.cjzrncsbfwdmjlhjoydl",  # Supabase ka user
+        "PASSWORD": "BayMay@123_",  # yaha apna actual password daal
+        "HOST": "aws-1-us-east-1.pooler.supabase.com",  # Session pooler ka host
+        "PORT": "5432",  # Session pooler ka port
+        "OPTIONS": {
+            "sslmode": "require",  # Supabase me SSL mandatory hota hai
+        },
+    }
+}
+
 
 
 # Password validation
@@ -178,10 +203,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 X_FRAME_OPTIONS = 'ALLOWALL'
 
 
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dosl9vhww',
-    'API_KEY': '528773539864824',
-    'API_SECRET': 'DhVY6hadv5CgM4hUpNv640i7g64'
-}
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'dosl9vhww',
+#     'API_KEY': '528773539864824',
+#     'API_SECRET': 'DhVY6hadv5CgM4hUpNv640i7g64'
+# }

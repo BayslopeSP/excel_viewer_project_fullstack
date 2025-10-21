@@ -1,4 +1,4 @@
-<div class="cover-page">
+<!-- <div class="cover-page">
   <div class="cover-box">
     <h1 class="main-title" *ngIf="sheet.rows.length && sheet.rows[0].length">
       {{ sheet.rows[1][0].value }}
@@ -9,5 +9,26 @@
     <h3 class="author" *ngIf="sheet.rows.length && sheet.rows[0].length">
       {{ sheet.rows[3][1].value }}
     </h3>
+  </div>
+</div> -->
+
+
+
+
+<div class="cover-page">
+  <div class="cover-box" *ngIf="sheet.rows && sheet.rows.length">
+    <h1 class="main-title">
+      {{ sheet.rows[1]?.[0]?.value || 'Cover Page Title Missing' }}
+    </h1>
+    <h2 class="sub-title">
+      {{ sheet.rows[2]?.[0]?.value || '' }}
+    </h2>
+    <h3 class="author">
+      {{ sheet.rows[3]?.[1]?.value || '' }}
+    </h3>
+
+    <div *ngIf="!sheet.rows[1]?.[0]?.value && !sheet.rows[2]?.[0]?.value">
+      <p class="placeholder">This cover page has no text content (only images or empty cells).</p>
+    </div>
   </div>
 </div>
