@@ -42,7 +42,8 @@ ALLOWED_HOSTS = [
     "excel-viewer-project-fullstack.onrender.com",
     "localhost",
     "127.0.0.1",
-    'https://excel-viewer-frontend.onrender.com'
+    'https://excel-viewer-frontend.onrender.com',
+    "160.153.181.186"
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 STATIC_URL = "/static/"

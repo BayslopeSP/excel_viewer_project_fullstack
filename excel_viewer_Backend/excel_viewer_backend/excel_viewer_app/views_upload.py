@@ -513,6 +513,9 @@ class ClientFileListView(generics.ListAPIView):
 
 
 
+
+
+
 # from rest_framework import generics
 from .serializers import RegisterSerializer
 from django.contrib.auth.models import User
@@ -591,56 +594,91 @@ class AdminClientFilesView(APIView):
 
 
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import permissions
+from .models import ExcelFile, Sheet, SheetEntry
+import time, logging
+from collections import defaultdict
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
+logger = logging.getLogger(__name__)
+
+@method_decorator(cache_page(60 * 2), name='dispatch')  # 2-min cache
 class ClientFileSheetsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        start = time.time()
+
         user = request.user
         all_data = []
-        user_files = ExcelFile.objects.filter(clientfile__user=user).distinct()
+
+        user_files = ExcelFile.objects.filter(clientfile__user=user).only('id', 'file_name', 'file')
+
+        base_url = request.build_absolute_uri('/')
+
+        sheets = Sheet.objects.filter(excel_file__in=user_files).prefetch_related('images')
+        sheet_map = defaultdict(list)
+        for sheet in sheets:
+            sheet_map[sheet.excel_file_id].append(sheet)
+
+        entries = SheetEntry.objects.filter(sheet__in=sheets).order_by('sheet_id', '-date_mapped')
+        entry_map = {}
+        for entry in entries:
+            if entry.sheet_id not in entry_map:
+                entry_map[entry.sheet_id] = entry
 
         for excel_file in user_files:
-            sheets = Sheet.objects.filter(excel_file=excel_file)
             file_data = {
                 "id": excel_file.id,
                 "file_name": excel_file.file_name,
+                "file_url": base_url + excel_file.file.name if excel_file.file else "",
                 "sheets": [],
-                "file_url": request.build_absolute_uri(excel_file.file.url) if excel_file.file else "",
             }
 
+            sheets = sheet_map.get(excel_file.id, [])
+
             for sheet in sheets:
-                entries = SheetEntry.objects.filter(sheet=sheet).order_by("-date_mapped")
-                images = sheet.images.all()
-                images_list = [
-                    {
-                        "url": image.image.url,
-                        "row": image.row + 1,
-                        "column": image.column + 1,
-                    }
-                    for image in images
-                    if image.row is not None and image.column is not None
-                ]
+                entry = entry_map.get(sheet.id)
 
                 sheet_data = {
                     "id": sheet.id,
                     "name": sheet.name,
                     "columns": [],
                     "rows": [],
-                    "images": images_list,
+                    "images": [],
                 }
 
-                if entries.exists():
-                    for entry in entries:
-                        rows = entry.row_data or []
-                        sheet_data["columns"] = rows[0] if rows else []
-                        sheet_data["rows"] = rows[1:] if rows else []
+                if entry and entry.row_data:
+                    rows = entry.row_data
+                    sheet_data["columns"] = rows[0] if rows else []
+                    sheet_data["rows"] = rows[1:4] if len(rows) > 1 else []
+
+                sheet_data["images"] = [
+                    {
+                        "url": base_url + img.image.name,
+                        "row": img.row + 1 if img.row is not None else None,
+                        "column": img.column + 1 if img.column is not None else None
+                    }
+                    for img in sheet.images.all()
+                    if img.image and img.image.name
+                ]
 
                 file_data["sheets"].append(sheet_data)
 
             all_data.append(file_data)
 
+        total_time = time.time() - start
+        logger.info(f"[SYNC] `/client/files/` took {total_time:.2f}s for user {user.username}")
         return Response(all_data)
-    
+
+
+
+
+
+
 from django.http import FileResponse, Http404
 import mimetypes
 import os
