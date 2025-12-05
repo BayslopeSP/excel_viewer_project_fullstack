@@ -5,27 +5,27 @@ import { tap } from 'rxjs/operators';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
-    // https://excel-viewer-project-fullstack.onrender.com
+  // private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
+  // https://excel-viewer-project-fullstack.onrender.com
   // private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
-  // private apiUrl = '';
+  private apiUrl = 'http://160.153.181.186:8010/api';
 
   constructor(private http: HttpClient, private router: Router) {}
-// 
+  //
   // JWT login
-//   
-// 
-// 
-// 
-// djangorestframework-simplejwt
-//
-//
-//
-//
-//
-//
-//
-//
+  //
+  //
+  //
+  //
+  // djangorestframework-simplejwt
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
 
   login(username: string, password: string) {
     return this.http

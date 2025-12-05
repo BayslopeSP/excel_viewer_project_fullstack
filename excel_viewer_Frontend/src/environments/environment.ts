@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://127.0.0.1:8000', // Django backend ka local URL
+  apiUrl: 'http://160.153.181.186:8010', // Django backend ka local URL
 
   //
-  // 
-  // 
+  //
+  //
 };
