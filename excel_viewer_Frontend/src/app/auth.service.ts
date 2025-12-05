@@ -8,7 +8,7 @@ export class AuthService {
   // private apiUrl = 'http://localhost:8000/api/'; // backend ka URL
   // https://excel-viewer-project-fullstack.onrender.com
   // private apiUrl = 'https://excel-viewer-project-fullstack.onrender.com/api/';
-  private apiUrl = 'http://160.153.181.186:8010/api';
+  private apiUrl = 'http://160.153.181.186:8010/api/';
 
   constructor(private http: HttpClient, private router: Router) {}
   //
