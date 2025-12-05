@@ -100,7 +100,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200",
     "https://excel-viewer-frontend.onrender.com",
-    "https://excel-viewer-frontend.onrender.com"
+    "https://excel-viewer-frontend.onrender.com",
+    "http://160.153.181.186:4203",
 ]
 
 ROOT_URLCONF = 'excel_viewer_backend.urls'

@@ -1,60 +1,67 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatIconRegistry } from '@angular/material/icon';
-
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ExcelSheet } from '../../models/excel-sheet.model';
 import { ApiService } from '../../services/api.service';
-import { ReportViewComponent } from '../report-view/report-view.component';
 import { AuthService } from '../../auth.service';
 import { MatTableModule } from '@angular/material/table';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
-    MatTableModule,
     CommonModule,
+    MatTableModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+  styleUrls: ['./dashboard.component.scss'],
 })
 export class DashboardComponent implements OnInit {
   displayedColumns: string[] = ['sno', 'fileName', 'actions'];
-
   excelData: ExcelSheet[] = [];
   isLoading = false;
 
   constructor(
     private router: Router,
     private ApiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cd: ChangeDetectorRef // ✅ for manual UI refresh
   ) {}
 
-  createReport() {
-    this.router.navigate([`create`], { queryParams: { isNew: true } });
-  }
   ngOnInit(): void {
     this.loadSheets();
   }
 
   loadSheets(): void {
     this.isLoading = true;
+
     this.ApiService.getMyFiles().subscribe({
       next: (data: ExcelSheet[]) => {
-        console.log('All Sheets:', this.excelData);
         this.excelData = data;
-        console.log('All Sheets:', this.excelData);
-        this.isLoading = false;
+
+        // 👇 Optional delay to make spinner visible
+        setTimeout(() => {
+          this.isLoading = false;
+          this.cd.detectChanges(); // ✅ manually trigger refresh
+        }, 100); // Adjust delay as needed
+
+        // Optionally log for debug
+        console.log('Fetched Sheets:', this.excelData);
       },
       error: (err) => {
         console.error('Failed to fetch sheets:', err);
         this.isLoading = false;
+        this.cd.detectChanges(); // ✅ Ensure spinner hides even on error
       },
     });
   }
@@ -75,7 +82,6 @@ export class DashboardComponent implements OnInit {
   }
 
   viewExcelFile(file: any): void {
-    // this.router.navigate(['rep_view'], { queryParams: { fileId: file.id } });
     if (file.file_name.endsWith('.pdf')) {
       this.router.navigate(['pdf_view'], { queryParams: { fileId: file.id } });
     } else {
@@ -83,20 +89,17 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  chooseFile() {
+  chooseFile(): void {
     this.router.navigate(['upload']);
   }
-  editSheet() {
-    // }
-    //
-    //
-  }
-  logout() {
-    // Clear local storage / session tokens
-    localStorage.clear(); // or remove specific token like localStorage.removeItem('access_token')
-    this.authService.logout();
 
-    // Navigate to login page
+  editSheet(): void {
+    // reserved for later
+  }
+
+  logout(): void {
+    localStorage.clear();
+    this.authService.logout();
     this.router.navigate(['/']);
   }
 }
