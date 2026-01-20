@@ -62,8 +62,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'excel_viewer_app',
-    # 'cloudinary',
-    # 'cloudinary_storage',
+
 ]
 
 REST_FRAMEWORK = {
@@ -205,10 +204,3 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 X_FRAME_OPTIONS = 'ALLOWALL'
 
 
-# DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': 'dosl9vhww',
-#     'API_KEY': '528773539864824',
-#     'API_SECRET': 'DhVY6hadv5CgM4hUpNv640i7g64'
-# }
